@@ -1,2 +1,4 @@
-workspace.xml
+# Normally workspace.xml would be ignored but a default workspace is being provided to include a default run configuration.
+# workspace.xml contains user specific settings that change when window positions change etc. so 'git update-index --assume-unchanged workspace.xml' is used to simply ignore changes to the file to keep a default workspace.
+#workspace.xml
 tasks.xml
