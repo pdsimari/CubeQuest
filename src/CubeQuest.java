@@ -15,6 +15,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * CSC 322: Introduction to Computer Graphics, Fall 2016
  *
  * Patricio Simari, PhD
+ * Michael Monaghan
  * Electrical Engineering and Computer Science
  * The Catholic University of America
  */
