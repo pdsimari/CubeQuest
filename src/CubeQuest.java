@@ -14,6 +14,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 /**
  * CSC 322: Introduction to Computer Graphics, Fall 2016
  *
+ * James Conroy
  * Patricio Simari, PhD
  * Electrical Engineering and Computer Science
  * The Catholic University of America
