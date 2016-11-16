@@ -17,6 +17,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * James Conroy
  * Patricio Simari, PhD
  * Michael Monaghan
+ * Tan Tran
  * Electrical Engineering and Computer Science
  * The Catholic University of America
  */
