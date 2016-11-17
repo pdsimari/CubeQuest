@@ -13,7 +13,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 /**
  * CSC 322: Introduction to Computer Graphics, Fall 2016
- *
+ * Ciaran Cordial
  * James Conroy
  * Patricio Simari, PhD
  * Michael Monaghan
@@ -734,7 +734,7 @@ public class CubeQuest {
             player.dx = -1.0f;
             player.facing = Direction.WEST;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)||Keyboard.isKeyDown(Keyboard.KEY_S)) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)||Keyboard.isKeyDown(Keyboard.KEY_D)) {
             player.dx = +1.0f;
             player.facing = Direction.EAST;
         }
