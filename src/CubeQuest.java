@@ -729,19 +729,19 @@ public class CubeQuest {
         // arrow keys
         player.dx = 0.0f;
         player.dz = 0.0f;
-        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)||Keyboard.isKeyDown(Keyboard.KEY_A)) {
             player.dx = -1.0f;
             player.facing = Direction.WEST;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)||Keyboard.isKeyDown(Keyboard.KEY_S)) {
             player.dx = +1.0f;
             player.facing = Direction.EAST;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_UP)||Keyboard.isKeyDown(Keyboard.KEY_W)) {
             player.dz = -1.0f;
             player.facing = Direction.NORTH;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)||Keyboard.isKeyDown(Keyboard.KEY_S)) {
             player.dz = +1.0f;
             player.facing = Direction.SOUTH;
         }
