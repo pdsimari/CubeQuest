@@ -1,21 +1,32 @@
 import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
+import java.awt.*;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.lwjgl.*;
+import org.lwjgl.util.vector.Vector2f;
+
+import java.lang.*;
+
 import static java.lang.Math.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 /**
  * CSC 322: Introduction to Computer Graphics, Fall 2016
  * Jan Lasota
- * Ciaran Cordial
  * James Conroy
+ * Ciaran Cordial
  * Patricio Simari, PhD
  * Michael Monaghan
  * Tan Tran
@@ -74,7 +85,7 @@ public class CubeQuest {
      * Enforced delay between consecutive player shots (in seconds).
      */
     static final float PLAYER_SHOT_DELAY = PLAYER_SHOT_DURATION/
-                                           PLAYER_SHOT_MAX;
+            PLAYER_SHOT_MAX;
 
     /**
      * Player structure.
@@ -84,6 +95,7 @@ public class CubeQuest {
         // position in the zx plane
         float x = 0.0f;
         float z = 0.0f;
+        float rotation = 0.0f;
 
         // direction of movement (+/- 1)
         float dx = 0.0f;
@@ -97,6 +109,7 @@ public class CubeQuest {
 
         // age (in seconds)
         float t = 0.0f;
+
 
     }
 
@@ -146,9 +159,16 @@ public class CubeQuest {
     static void playerUpdate(float dt) {
 
         // update player position
-        player.x += player.dx*PLAYER_SPEED*dt;
-        player.z += player.dz*PLAYER_SPEED*dt;
+
+        player.x += -player.dz * PLAYER_SPEED * dt * sin(player.rotation * Math.PI / 180);
+        player.z += -player.dz * PLAYER_SPEED * dt * cos(player.rotation * Math.PI / 180);
+
+        player.x += player.dx * PLAYER_SPEED * dt * sin((player.rotation + 90) * Math.PI / 180);
+        player.z += player.dx * PLAYER_SPEED * dt * cos((player.rotation + 90) * Math.PI / 180);
+
+
         player.t += dt;
+
 
         // update player shots (if active)
         for (PlayerShot shot : player.shots) {
@@ -175,7 +195,8 @@ public class CubeQuest {
         glPushMatrix();
         {
             glColor3f(1.0f, 0.0f, 0.0f);
-            glTranslatef(0.0f, 0.5f, 0.0f);
+            glTranslatef(player.x, 0.5f, player.z);
+            glRotatef(player.rotation, 0.0f, 1.0f, 0.0f);
             glScalef(0.5f, 0.5f, 0.5f);
             plotSolidCube();
         }
@@ -201,7 +222,7 @@ public class CubeQuest {
                     glColor3f(1.0f, 1.0f, 0.0f);
                     glTranslatef(shot.x, 0.5f, shot.z);
                     glScalef(PLAYER_SHOT_SIZE, PLAYER_SHOT_SIZE,
-                             PLAYER_SHOT_SIZE);
+                            PLAYER_SHOT_SIZE);
                     plotSolidCube();
                 }
                 glPopMatrix();
@@ -209,6 +230,10 @@ public class CubeQuest {
         }
 
     }
+
+    // -------------------------------------------------------------------------
+
+
 
     // -------------------------------------------------------------------------
 
@@ -233,20 +258,9 @@ public class CubeQuest {
                 shot.t = 0.0f;
                 shot.x = player.x;
                 shot.z = player.z;
-                shot.dx = 0.0f;
-                shot.dz = 0.0f;
+                shot.dx = (float) (1 * sin(player.rotation * Math.PI / 180));
+                shot.dz = (float) (1 * cos(player.rotation * Math.PI / 180));
 
-                // set velocity according to player facing direction
-                switch (player.facing) {
-                    case EAST:  shot.dx = +1.0f;
-                        break;
-                    case WEST:  shot.dx = -1.0f;
-                        break;
-                    case NORTH: shot.dz = -1.0f;
-                        break;
-                    case SOUTH: shot.dz = +1.0f;
-                        break;
-                }
 
                 // if slot is found, we're done;
                 return;
@@ -515,8 +529,8 @@ public class CubeQuest {
 
         // camera's spherical coordinates about the player
         public float azimuth     =  0.0f;
-        public float elevation   = -37.5f;
-        public float distance    =  6.0f;
+        public float elevation   = -12.5f;
+        public float distance    =  1.5f;
 
         // clipping planes
         public float nearPlane   =  0.1f;
@@ -524,6 +538,7 @@ public class CubeQuest {
         public float fieldOfView =  45.0f;
 
     }
+
 
     /**
      * The game camera.
@@ -537,9 +552,11 @@ public class CubeQuest {
      */
     static void cameraTransformation() {
 
-        glTranslatef(0.0f, 0.0f, -camera.distance);
         glRotatef(-camera.elevation, 1.0f, 0.0f, 0.0f);
-        glRotatef(-camera.azimuth,   0.0f, 1.0f, 0.0f);
+        glRotatef(180, 0.0f, 1.0f, 0.0f);
+        glTranslatef(0.0f, -1.0f, +2.0f);
+        glRotatef(player.rotation, 0.0f, -1.0f, 0.0f);
+        glTranslatef(-player.x * .25f, 0.0f, -player.z * .25f);
 
     }
 
@@ -611,6 +628,7 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
+
     /**
      * Initialize display and OpenGL properties.
      *
@@ -624,6 +642,12 @@ public class CubeQuest {
         Display.setVSyncEnabled(true);
         Display.setResizable(true);
         Display.create();
+
+        //Mouse, sets it to be hidden
+        Mouse.create();
+        Mouse.setGrabbed(true);
+
+
 
         // get display size
         int width = Display.getDisplayMode().getWidth();
@@ -639,7 +663,7 @@ public class CubeQuest {
         glLoadIdentity();
         float aspectRatio = ((float) width)/height;
         gluPerspective(camera.fieldOfView, aspectRatio,
-                       camera.nearPlane, camera.farPlane);
+                camera.nearPlane, camera.farPlane);
 
         // background color
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -723,6 +747,9 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
+    //Inital X and Y for Camera
+    public static int previousX = -1;
+    public static int previousY = -1;
     /**
      * Handle input to the game.
      */
@@ -731,32 +758,44 @@ public class CubeQuest {
         // arrow keys
         player.dx = 0.0f;
         player.dz = 0.0f;
-        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)||Keyboard.isKeyDown(Keyboard.KEY_A)) {
-            player.dx = -1.0f;
-            player.facing = Direction.WEST;
+
+        int mouseDifferenceX = Mouse.getX() - previousX;
+        int mouseDifferenceY = Mouse.getY() - previousY;
+
+
+        if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+            player.dx += +1.0f;
+            //player.facing = Direction.WEST;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)||Keyboard.isKeyDown(Keyboard.KEY_D)) {
-            player.dx = +1.0f;
-            player.facing = Direction.EAST;
+        if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
+            player.dx += -1.0f;
+            //player.facing = Direction.EAST;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_UP)||Keyboard.isKeyDown(Keyboard.KEY_W)) {
-            player.dz = -1.0f;
-            player.facing = Direction.NORTH;
+        if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
+            player.dz += -1.0f;
+            //player.facing = Direction.NORTH;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)||Keyboard.isKeyDown(Keyboard.KEY_S)) {
-            player.dz = +1.0f;
-            player.facing = Direction.SOUTH;
+        if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
+            player.dz += +1.0f;
+            //player.facing = Direction.SOUTH;
         }
 
         // space bar
-        if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+        if (Mouse.isButtonDown(0)) {
             playerShoot();
         }
+
+        //Updates camera based on Mouse position
+        player.rotation += (mouseDifferenceX * 0.25f);
+        Mouse.setCursorPosition(Display.getDisplayMode().getWidth() / 2, Display.getDisplayMode().getHeight() / 2);
+        previousX = Mouse.getX();
+
+
 
         // escape to quit
         while (Keyboard.next()) {
             if (Keyboard.getEventKeyState() &&
-                Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+                    Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
 
                 finished = true;
 
@@ -846,8 +885,7 @@ public class CubeQuest {
             glScalef(WORLD_SCALE, WORLD_SCALE, WORLD_SCALE);
             playerPlotAvatar();
 
-            // undo player location
-            glTranslatef(-player.x, 0.0f, -player.z);
+
 
             // TODO: plot all game elements
 
@@ -869,7 +907,7 @@ public class CubeQuest {
 
         // Close the window
         Display.destroy();
-
+        Mouse.destroy();
     }
 
     // =========================================================================
@@ -898,11 +936,7 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
-    /**
-     * Plot a unit cube (i.e, a cube spanning the [-1, 1] interval on the X, Y,
-     * and Z axes).
-     */
-    static void plotSolidCube() {
+    static void plotPlayer() {
 
         // set flat shading
         glShadeModel(GL_FLAT);
@@ -912,6 +946,7 @@ public class CubeQuest {
         {
 
             // front x face
+            glColor3f(0.0f, 0.0f, 0.0f);
             glNormal3f( 1.0f, 0.0f, 0.0f);
             glVertex3f( 1.0f, -1.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
@@ -919,6 +954,7 @@ public class CubeQuest {
             glVertex3f( 1.0f, -1.0f, 1.0f);
 
             // back x face
+            glColor3f(1.0f, 0.0f, 1.0f);
             glNormal3f(-1.0f, 0.0f, 0.0f);
             glVertex3f(-1.0f, 1.0f, 1.0f);
             glVertex3f(-1.0f, -1.0f, 1.0f);
@@ -926,6 +962,7 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, -1.0f);
 
             // front y face
+            glColor3f(1.0f, 0.0f, 0.0f);
             glNormal3f(0.0f, 1.0f, 0.0f);
             glVertex3f(-1.0f, 1.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
@@ -947,6 +984,73 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, 1.0f);
 
             // back z face
+            glNormal3f(0.0f, 0.0f, -1.0f);
+            glVertex3f( 1.0f, 1.0f, -1.0f);
+            glVertex3f(-1.0f, 1.0f, -1.0f);
+            glVertex3f(-1.0f, -1.0f, -1.0f);
+            glVertex3f( 1.0f, -1.0f, -1.0f);
+
+        }
+        glEnd();
+
+    }
+
+    /**
+     * Plot a unit cube (i.e, a cube spanning the [-1, 1] interval on the X, Y,
+     * and Z axes).
+     */
+    static void plotSolidCube() {
+
+        // set flat shading
+        glShadeModel(GL_FLAT);
+
+        // drawing quads (squares)
+        glBegin(GL_QUADS);
+        {
+
+            // front x face
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glNormal3f( 1.0f, 0.0f, 0.0f);
+            glVertex3f( 1.0f, -1.0f, -1.0f);
+            glVertex3f( 1.0f, 1.0f, -1.0f);
+            glVertex3f( 1.0f, 1.0f, 1.0f);
+            glVertex3f( 1.0f, -1.0f, 1.0f);
+
+            // back x face
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glNormal3f(-1.0f, 0.0f, 0.0f);
+            glVertex3f(-1.0f, 1.0f, 1.0f);
+            glVertex3f(-1.0f, -1.0f, 1.0f);
+            glVertex3f(-1.0f, -1.0f, -1.0f);
+            glVertex3f(-1.0f, 1.0f, -1.0f);
+
+            // front y face
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glNormal3f(0.0f, 1.0f, 0.0f);
+            glVertex3f(-1.0f, 1.0f, -1.0f);
+            glVertex3f( 1.0f, 1.0f, -1.0f);
+            glVertex3f( 1.0f, 1.0f, 1.0f);
+            glVertex3f(-1.0f, 1.0f, 1.0f);
+
+            // back y face
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glNormal3f(0.0f, -1.0f, 0.0f);
+            glVertex3f( 1.0f, -1.0f, 1.0f);
+            glVertex3f(-1.0f, -1.0f, 1.0f);
+            glVertex3f(-1.0f, -1.0f, -1.0f);
+            glVertex3f( 1.0f, -1.0f, -1.0f);
+
+            // front z face
+
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glNormal3f(0.0f, 0.0f, 1.0f);
+            glVertex3f(-1.0f, -1.0f, 1.0f);
+            glVertex3f( 1.0f, -1.0f, 1.0f);
+            glVertex3f( 1.0f, 1.0f, 1.0f);
+            glVertex3f(-1.0f, 1.0f, 1.0f);
+
+            // back z face
+            glColor3f(1.0f, 0.0f, 0.0f);
             glNormal3f(0.0f, 0.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
             glVertex3f(-1.0f, 1.0f, -1.0f);
@@ -1049,7 +1153,7 @@ public class CubeQuest {
      * @return A float buffer.
      */
     static FloatBuffer floatBuffer(float f1, float f2,
-                                           float f3, float f4) {
+                                   float f3, float f4) {
 
         FloatBuffer fb = BufferUtils.createFloatBuffer(4);
         fb.put(f1).put(f2).put(f3).put(f4).flip();
