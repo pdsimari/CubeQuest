@@ -786,7 +786,7 @@ public class CubeQuest {
         }
 
         //Updates camera based on Mouse position
-        player.rotation += (mouseDifferenceX * 0.25f);
+        player.rotation -= (mouseDifferenceX * 0.25f);
         Mouse.setCursorPosition(Display.getDisplayMode().getWidth() / 2, Display.getDisplayMode().getHeight() / 2);
         previousX = Mouse.getX();
 
