@@ -471,7 +471,105 @@ public class CubeQuest {
         e.health = ENEMY_MAX_HEALTH;
 
     }
+    //==========================================================================
+    // TERRAIN
+    //==========================================================================
 
+
+    /**
+     * Maximum number of Terrain instances.
+     */
+    static final int   TERRAIN_COUNT = 10;
+
+
+    /**
+     * Terrain structure.
+     */
+    static class Terrain {
+
+        // position in the zx plane
+        float x;
+        float z;
+
+        // size
+        float Width;
+        float Height;
+
+    }
+
+    /**
+     * All terrain.
+     */
+    static final Terrain[] columns  = new Terrain[TERRAIN_COUNT];
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * Initialize terrain Instances
+     */
+    static void TerrainInit() {
+
+        // for each column
+        for (int i = 0; i < TERRAIN_COUNT; i++) {
+
+            // place it in a random world location
+            columns[i] = new Terrain();
+            terrainSpawn(columns[i]);
+
+        }
+
+    }
+    // -------------------------------------------------------------------------
+
+    /**
+     * Plot the terrain.
+     */
+    static void terrainPlot() {
+
+        // for each instance...
+        for (int i = 0; i < ENEMY_COUNT; i++) {
+
+            // consider current instance
+            Terrain c = columns[i];
+
+
+            glPushMatrix();
+            {
+                glColor3f(0.0f,1.0f,0.0f);
+
+                // plot cube at terrain location
+                glTranslatef(c.x, 0.0f, c.z);
+                glPushMatrix();
+                {
+                    glScalef(c.Width, c.Height, c.Width);
+                    glTranslatef(0.0f, 1.0f, 0.0f);
+                    plotSolidCube();
+                }
+                glPopMatrix();
+
+
+            }
+            glPopMatrix();
+
+        }
+
+    }
+    // -------------------------------------------------------------------------
+    /**
+     * Spawn a column c to a random location.
+     *
+     * @param c An enemy.
+     */
+    static void terrainSpawn(Terrain c) {
+
+        //size
+        c.Width = random(0.5f,2.0f);
+        c.Height = random(0.5f,3.0f);
+
+        //position
+        c.x = random(-WORLD_RADIUS, +WORLD_RADIUS);
+        c.z = random(-WORLD_RADIUS, +WORLD_RADIUS);
+    }
     // =========================================================================
     // WORLD
     // =========================================================================
@@ -529,7 +627,7 @@ public class CubeQuest {
 
         // camera's spherical coordinates about the player
         public float azimuth     =  0.0f;
-        public float elevation   = -12.5f;
+        public float elevation   =  -12.5f;
         public float distance    =  1.5f;
 
         // clipping planes
@@ -710,6 +808,7 @@ public class CubeQuest {
 
         playerInit();
         enemiesInit();
+        TerrainInit();
 
     }
 
@@ -892,6 +991,7 @@ public class CubeQuest {
             worldPlotFloor();
             playerPlotShots();
             enemiesPlot();
+            terrainPlot();
 
         }
         glPopMatrix();
