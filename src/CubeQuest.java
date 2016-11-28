@@ -596,7 +596,7 @@ public class CubeQuest {
 
         glDisable(GL_LIGHTING);
         {
-            glColor4f(0.75f, 0.75f, 0.75f, 0.75f);
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
             glLineWidth(0.2f);
             glBegin(GL_LINES);
             {
@@ -764,7 +764,7 @@ public class CubeQuest {
                 camera.nearPlane, camera.farPlane);
 
         // background color
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         // lighting
         glEnable(GL_LIGHTING);
@@ -846,7 +846,7 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
-    //Inital X and Y for Camera
+    //Initial X and Y for Camera
     public static int previousX = -1;
     public static int previousY = -1;
     /**
