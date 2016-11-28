@@ -132,7 +132,7 @@ public class CubeQuest {
     }
 
     /**
-     * THe player.
+     * The player.
      */
     static final Player player = new Player();
 
@@ -1036,65 +1036,6 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
-    static void plotPlayer() {
-
-        // set flat shading
-        glShadeModel(GL_FLAT);
-
-        // drawing quads (squares)
-        glBegin(GL_QUADS);
-        {
-
-            // front x face
-            glColor3f(0.0f, 0.0f, 0.0f);
-            glNormal3f( 1.0f, 0.0f, 0.0f);
-            glVertex3f( 1.0f, -1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, 1.0f);
-            glVertex3f( 1.0f, -1.0f, 1.0f);
-
-            // back x face
-            glColor3f(1.0f, 0.0f, 1.0f);
-            glNormal3f(-1.0f, 0.0f, 0.0f);
-            glVertex3f(-1.0f, 1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, -1.0f);
-            glVertex3f(-1.0f, 1.0f, -1.0f);
-
-            // front y face
-            glColor3f(1.0f, 0.0f, 0.0f);
-            glNormal3f(0.0f, 1.0f, 0.0f);
-            glVertex3f(-1.0f, 1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, 1.0f);
-            glVertex3f(-1.0f, 1.0f, 1.0f);
-
-            // back y face
-            glNormal3f(0.0f, -1.0f, 0.0f);
-            glVertex3f( 1.0f, -1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, -1.0f);
-            glVertex3f( 1.0f, -1.0f, -1.0f);
-
-            // front z face
-            glNormal3f(0.0f, 0.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, 1.0f);
-            glVertex3f( 1.0f, -1.0f, 1.0f);
-            glVertex3f( 1.0f, 1.0f, 1.0f);
-            glVertex3f(-1.0f, 1.0f, 1.0f);
-
-            // back z face
-            glNormal3f(0.0f, 0.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, -1.0f);
-            glVertex3f(-1.0f, 1.0f, -1.0f);
-            glVertex3f(-1.0f, -1.0f, -1.0f);
-            glVertex3f( 1.0f, -1.0f, -1.0f);
-
-        }
-        glEnd();
-
-    }
-
     /**
      * Plot a unit cube (i.e, a cube spanning the [-1, 1] interval on the X, Y,
      * and Z axes).
@@ -1109,7 +1050,7 @@ public class CubeQuest {
         {
 
             // front x face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f( 1.0f, 0.0f, 0.0f);
             glVertex3f( 1.0f, -1.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
@@ -1117,7 +1058,7 @@ public class CubeQuest {
             glVertex3f( 1.0f, -1.0f, 1.0f);
 
             // back x face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(-1.0f, 0.0f, 0.0f);
             glVertex3f(-1.0f, 1.0f, 1.0f);
             glVertex3f(-1.0f, -1.0f, 1.0f);
@@ -1125,7 +1066,7 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, -1.0f);
 
             // front y face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(0.0f, 1.0f, 0.0f);
             glVertex3f(-1.0f, 1.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
@@ -1133,7 +1074,7 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, 1.0f);
 
             // back y face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(0.0f, -1.0f, 0.0f);
             glVertex3f( 1.0f, -1.0f, 1.0f);
             glVertex3f(-1.0f, -1.0f, 1.0f);
@@ -1142,7 +1083,6 @@ public class CubeQuest {
 
             // front z face
 
-            glColor3f(1.0f, 1.0f, 1.0f);
             glNormal3f(0.0f, 0.0f, 1.0f);
             glVertex3f(-1.0f, -1.0f, 1.0f);
             glVertex3f( 1.0f, -1.0f, 1.0f);
@@ -1150,7 +1090,7 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, 1.0f);
 
             // back z face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(0.0f, 0.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
             glVertex3f(-1.0f, 1.0f, -1.0f);
