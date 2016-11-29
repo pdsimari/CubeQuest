@@ -1408,11 +1408,9 @@ public class CubeQuest {
             glPopMatrix();
             }
             terrainPlot();
-<<<<<<< HEAD
             sparkPlot();
 
-=======
->>>>>>> refs/remotes/origin/master
+
         }
         glPopMatrix();
 
