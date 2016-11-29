@@ -1,4 +1,5 @@
 import org.lwjgl.BufferUtils;
+import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 
@@ -503,6 +504,241 @@ public class CubeQuest {
 
     }
 
+    // -------------------------------------------------------------------------
+    // Power Up
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+    Initialize function and variables
+     */
+    private static void set(float[] src, float[] dest) { System.arraycopy(src, 0, dest, 0, src.length); }
+
+    /**
+     * PowerUp structure
+     */
+// -----------------------------------------------------------------------------------------------------------------
+    private static void plotTreasureChest() {
+
+        float x= (float) 2.5;
+        float y= (float) 3.0;
+        float z= (float) 2.5;
+        float h= (float) 2.5;
+
+        glColor3f(1.0f, 1.0f, 1.0f);
+
+        // plot base
+        glPushMatrix();
+        {
+            glTranslatef(0.0f, 0.5f, 0.0f);
+            glScalef(0.5f, 0.5f, 0.5f);
+            glScalef(6.0f, 0.5f, 6.0f);
+            plotUnitCube();
+        }
+        glPopMatrix();
+
+        //Draw the front
+        plotCylinder(x,y,z,h,0.3f);   //cx cy cz
+        plotCylinder(x/2,y,z,h,0.3f);
+        plotCylinder(0,y,z,h,0.3f);
+        plotCylinder(-x/2,y,z,h,0.3f);
+        plotCylinder(-x,y,z,h,0.3f);
+
+        //Draw the middle
+        plotCylinder(x,y,0.0f,h,0.3f);
+
+        plotCylinder(x,y,z/2,h,0.3f);
+
+        plotCylinder(x,y,-z/2,h,0.3f);
+
+        plotCylinder(-x,y,0.0f,h,0.3f);
+
+        plotCylinder(-x,y,z/2,h,0.3f);
+
+        plotCylinder(-x,y,-z/2,h,0.3f);
+
+        //Draw the back
+        plotCylinder(x,y,-z,h,0.3f);
+        plotCylinder(x/2,y,-z,h,0.3f);
+        plotCylinder(0,y,-z,h,0.3f);
+        plotCylinder(-x/2,y,-z,h,0.3f);
+        plotCylinder(-x,y,-z,h,0.3f);
+
+        //Draw the roof
+        glPushMatrix();
+        {
+            glTranslatef(0.0f, y+2.5f, 0.0f);
+            glScalef(0.5f, 0.5f, 0.5f);
+            glScalef(6.0f, 0.5f, 6.0f);
+            plotUnitCube();
+        }
+        glPopMatrix();
+
+    }
+
+// -----------------------------------------------------------------------------------------------------------------
+    private static void plotSword() {
+
+        glColor3f(0.0f, 0.0f, 0.0f);
+
+        // plot base
+        glPushMatrix();
+        {
+            glTranslatef(0.0f, 1.0f, 0.0f);
+            glScalef(0.5f, 0.5f, 0.5f);
+            glScalef(0.5f, 3.5f, 0.3f);
+            plotUnitCube();
+        }
+        glPopMatrix();
+
+        glPushMatrix();
+        {
+            glTranslatef(0.0f, 0.5f, 0.0f);
+            glScalef(0.5f, 0.5f, 0.5f);
+            glScalef(2.0f, 0.5f, 0.3f);
+            plotUnitCube();
+        }
+        glPopMatrix();
+
+        glPushMatrix();
+        {
+            glTranslatef(0.75f, 0.9f, 0.0f);
+            glScalef(0.5f, 0.5f, 0.5f);
+            glScalef(0.5f, 1.0f, 0.3f);
+            plotUnitCube();
+        }
+        glPopMatrix();
+
+        glPushMatrix();
+        {
+            glTranslatef(-0.75f, 0.9f, 0.0f);
+            glScalef(0.5f, 0.5f, 0.5f);
+            glScalef(0.5f, 1.0f, 0.3f);
+            plotUnitCube();
+        }
+        glPopMatrix();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    private static void plotCylinder(float cx, float cy, float cz, float h, float r) {
+
+        // plot cone 1
+        glPushMatrix();
+        {
+            glTranslatef(cx, cy, cz);
+            glScalef(r, h, r);
+            plotUnitCylinder(16);
+        }
+        glPopMatrix();
+
+    }
+    // -----------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Render a unit cube.
+     */
+    private static void plotUnitCube() {
+
+        // drawing quads (squares)
+        glBegin(GL_QUADS);
+
+        // front x face
+        glNormal3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);
+
+        // back x face
+        glNormal3f(-1.0f, 0.0f, 0.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);
+
+        // front y face
+        glNormal3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);
+
+        // back y face
+        glNormal3f(0.0f, -1.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);
+
+        // front z face
+        glNormal3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);
+
+        // back z face
+        glNormal3f(0.0f, 0.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);
+
+        glEnd();
+
+    }
+    //-----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Plot an uncapped unit cylinder with n sides. The extrema of the cylinder will be at Y = +/- 1.
+     *
+     * @param n An int.
+     */
+    private static void plotUnitCylinder(int n) {
+
+        // p->q will represent the current base edge we are on
+        float TURN= (float) (2.0*Math.PI);
+        float[] p = new float[3];
+        float[] q = new float[3];
+        setSpherical(0.0f, 0.0f, 1.0f, q);
+
+        // plot triangle faces
+        glBegin(GL_QUADS);
+        for (int i = 1; i <= n; i++) {
+
+            // go to next base edge
+            set(q, p);
+            setSpherical((TURN*i)/n, 0.0f, 1.0f, q);
+
+            // plot current quad
+            glNormal3f(p[0], 0.0f, p[2]); glVertex3f(p[0], -1.0f, p[2]);
+            glNormal3f(q[0], 0.0f, q[2]); glVertex3f(q[0], -1.0f, q[2]);
+            glNormal3f(q[0], 0.0f, q[2]); glVertex3f(q[0], +1.0f, q[2]);
+            glNormal3f(p[0], 0.0f, p[2]); glVertex3f(p[0], +1.0f, p[2]);
+
+        }
+        glEnd();
+
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Set the components of point dest based on the spherical parameters theta, phi, and r.
+     *
+     * @param theta The azimuth about the Y axis in radians.
+     * @param phi   The elevation above the XZ plane in radians.
+     * @param r     The distance from the origin.
+     * @param dest  Destination point.
+     */
+    private static void setSpherical(float theta, float phi, float r, float[] dest) {
+
+        dest[1] =    (float) sin(phi)*r;
+        float r_xz = (float) cos(phi)*r;
+        dest[0] =    (float) cos(theta)*r_xz;
+        dest[2] =    (float) sin(theta)*r_xz;
+
+    }
+
     // =========================================================================
     // CAMERA
     // =========================================================================
@@ -853,7 +1089,13 @@ public class CubeQuest {
             worldPlotFloor();
             playerPlotShots();
             enemiesPlot();
-
+            plotTreasureChest();
+            glPushMatrix();{
+            float height = (float) Math.sin(System.currentTimeMillis()/200);
+            glTranslatef(0.0f,2.0f+height,0.0f);
+            plotSword();
+            glPopMatrix();
+            }
         }
         glPopMatrix();
 
