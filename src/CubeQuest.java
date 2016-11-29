@@ -30,6 +30,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * Patricio Simari, PhD
  * Michael Monaghan
  * Tan Tran
+ * Shay Mento
  * Electrical Engineering and Computer Science
  * The Catholic University of America
  */
