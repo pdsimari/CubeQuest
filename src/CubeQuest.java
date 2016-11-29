@@ -132,7 +132,7 @@ public class CubeQuest {
     }
 
     /**
-     * THe player.
+     * The player.
      */
     static final Player player = new Player();
 
@@ -471,7 +471,105 @@ public class CubeQuest {
         e.health = ENEMY_MAX_HEALTH;
 
     }
+    //==========================================================================
+    // TERRAIN
+    //==========================================================================
 
+
+    /**
+     * Maximum number of Terrain instances.
+     */
+    static final int   TERRAIN_COUNT = 10;
+
+
+    /**
+     * Terrain structure.
+     */
+    static class Terrain {
+
+        // position in the zx plane
+        float x;
+        float z;
+
+        // size
+        float Width;
+        float Height;
+
+    }
+
+    /**
+     * All terrain.
+     */
+    static final Terrain[] columns  = new Terrain[TERRAIN_COUNT];
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * Initialize terrain Instances
+     */
+    static void TerrainInit() {
+
+        // for each column
+        for (int i = 0; i < TERRAIN_COUNT; i++) {
+
+            // place it in a random world location
+            columns[i] = new Terrain();
+            terrainSpawn(columns[i]);
+
+        }
+
+    }
+    // -------------------------------------------------------------------------
+
+    /**
+     * Plot the terrain.
+     */
+    static void terrainPlot() {
+
+        // for each instance...
+        for (int i = 0; i < ENEMY_COUNT; i++) {
+
+            // consider current instance
+            Terrain c = columns[i];
+
+
+            glPushMatrix();
+            {
+                glColor3f(0.0f,1.0f,0.0f);
+
+                // plot cube at terrain location
+                glTranslatef(c.x, 0.0f, c.z);
+                glPushMatrix();
+                {
+                    glScalef(c.Width, c.Height, c.Width);
+                    glTranslatef(0.0f, 1.0f, 0.0f);
+                    plotSolidCube();
+                }
+                glPopMatrix();
+
+
+            }
+            glPopMatrix();
+
+        }
+
+    }
+    // -------------------------------------------------------------------------
+    /**
+     * Spawn a column c to a random location.
+     *
+     * @param c An enemy.
+     */
+    static void terrainSpawn(Terrain c) {
+
+        //size
+        c.Width = random(0.5f,2.0f);
+        c.Height = random(0.5f,3.0f);
+
+        //position
+        c.x = random(-WORLD_RADIUS, +WORLD_RADIUS);
+        c.z = random(-WORLD_RADIUS, +WORLD_RADIUS);
+    }
     // =========================================================================
     // WORLD
     // =========================================================================
@@ -498,7 +596,7 @@ public class CubeQuest {
 
         glDisable(GL_LIGHTING);
         {
-            glColor4f(0.75f, 0.75f, 0.75f, 0.75f);
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
             glLineWidth(0.2f);
             glBegin(GL_LINES);
             {
@@ -529,7 +627,7 @@ public class CubeQuest {
 
         // camera's spherical coordinates about the player
         public float azimuth     =  0.0f;
-        public float elevation   = -12.5f;
+        public float elevation   =  -12.5f;
         public float distance    =  1.5f;
 
         // clipping planes
@@ -666,7 +764,7 @@ public class CubeQuest {
                 camera.nearPlane, camera.farPlane);
 
         // background color
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         // lighting
         glEnable(GL_LIGHTING);
@@ -710,6 +808,7 @@ public class CubeQuest {
 
         playerInit();
         enemiesInit();
+        TerrainInit();
 
     }
 
@@ -747,7 +846,7 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
-    //Inital X and Y for Camera
+    //Initial X and Y for Camera
     public static int previousX = -1;
     public static int previousY = -1;
     /**
@@ -786,7 +885,7 @@ public class CubeQuest {
         }
 
         //Updates camera based on Mouse position
-        player.rotation += (mouseDifferenceX * 0.25f);
+        player.rotation -= (mouseDifferenceX * 0.25f);
         Mouse.setCursorPosition(Display.getDisplayMode().getWidth() / 2, Display.getDisplayMode().getHeight() / 2);
         previousX = Mouse.getX();
 
@@ -892,6 +991,7 @@ public class CubeQuest {
             worldPlotFloor();
             playerPlotShots();
             enemiesPlot();
+            terrainPlot();
 
         }
         glPopMatrix();
@@ -936,65 +1036,6 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
-    static void plotPlayer() {
-
-        // set flat shading
-        glShadeModel(GL_FLAT);
-
-        // drawing quads (squares)
-        glBegin(GL_QUADS);
-        {
-
-            // front x face
-            glColor3f(0.0f, 0.0f, 0.0f);
-            glNormal3f( 1.0f, 0.0f, 0.0f);
-            glVertex3f( 1.0f, -1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, 1.0f);
-            glVertex3f( 1.0f, -1.0f, 1.0f);
-
-            // back x face
-            glColor3f(1.0f, 0.0f, 1.0f);
-            glNormal3f(-1.0f, 0.0f, 0.0f);
-            glVertex3f(-1.0f, 1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, -1.0f);
-            glVertex3f(-1.0f, 1.0f, -1.0f);
-
-            // front y face
-            glColor3f(1.0f, 0.0f, 0.0f);
-            glNormal3f(0.0f, 1.0f, 0.0f);
-            glVertex3f(-1.0f, 1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, 1.0f);
-            glVertex3f(-1.0f, 1.0f, 1.0f);
-
-            // back y face
-            glNormal3f(0.0f, -1.0f, 0.0f);
-            glVertex3f( 1.0f, -1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, -1.0f);
-            glVertex3f( 1.0f, -1.0f, -1.0f);
-
-            // front z face
-            glNormal3f(0.0f, 0.0f, 1.0f);
-            glVertex3f(-1.0f, -1.0f, 1.0f);
-            glVertex3f( 1.0f, -1.0f, 1.0f);
-            glVertex3f( 1.0f, 1.0f, 1.0f);
-            glVertex3f(-1.0f, 1.0f, 1.0f);
-
-            // back z face
-            glNormal3f(0.0f, 0.0f, -1.0f);
-            glVertex3f( 1.0f, 1.0f, -1.0f);
-            glVertex3f(-1.0f, 1.0f, -1.0f);
-            glVertex3f(-1.0f, -1.0f, -1.0f);
-            glVertex3f( 1.0f, -1.0f, -1.0f);
-
-        }
-        glEnd();
-
-    }
-
     /**
      * Plot a unit cube (i.e, a cube spanning the [-1, 1] interval on the X, Y,
      * and Z axes).
@@ -1009,7 +1050,7 @@ public class CubeQuest {
         {
 
             // front x face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f( 1.0f, 0.0f, 0.0f);
             glVertex3f( 1.0f, -1.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
@@ -1017,7 +1058,7 @@ public class CubeQuest {
             glVertex3f( 1.0f, -1.0f, 1.0f);
 
             // back x face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(-1.0f, 0.0f, 0.0f);
             glVertex3f(-1.0f, 1.0f, 1.0f);
             glVertex3f(-1.0f, -1.0f, 1.0f);
@@ -1025,7 +1066,7 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, -1.0f);
 
             // front y face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(0.0f, 1.0f, 0.0f);
             glVertex3f(-1.0f, 1.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
@@ -1033,7 +1074,7 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, 1.0f);
 
             // back y face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(0.0f, -1.0f, 0.0f);
             glVertex3f( 1.0f, -1.0f, 1.0f);
             glVertex3f(-1.0f, -1.0f, 1.0f);
@@ -1042,7 +1083,6 @@ public class CubeQuest {
 
             // front z face
 
-            glColor3f(1.0f, 1.0f, 1.0f);
             glNormal3f(0.0f, 0.0f, 1.0f);
             glVertex3f(-1.0f, -1.0f, 1.0f);
             glVertex3f( 1.0f, -1.0f, 1.0f);
@@ -1050,7 +1090,7 @@ public class CubeQuest {
             glVertex3f(-1.0f, 1.0f, 1.0f);
 
             // back z face
-            glColor3f(1.0f, 0.0f, 0.0f);
+
             glNormal3f(0.0f, 0.0f, -1.0f);
             glVertex3f( 1.0f, 1.0f, -1.0f);
             glVertex3f(-1.0f, 1.0f, -1.0f);
