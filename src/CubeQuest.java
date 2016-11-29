@@ -571,11 +571,11 @@ public class CubeQuest {
 
                     //update location
                     if (turn == 1){
-                        s.dz += -1;
+                        s.dz += -0.01f;
                     } else if (turn == 3) {
-                        s.dz += 1;
+                        s.dz += 0.01f;
                     } else {
-                        s.dx += 1;
+                        s.dx +=0.01f;
                     }
 
                 }
