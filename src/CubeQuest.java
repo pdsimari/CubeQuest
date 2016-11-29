@@ -561,10 +561,11 @@ public class CubeQuest {
             s.t += dt;
 
 
-            if ( s.t <= SPARK_LIFE_TIME) {
-                for (int j = 0; j < 5; j++){
+
+                for (int j = 0; j < SPARK_LIFE_TIME; j++){
+
                     // determine direction of movement
-                    if ( j == 4) {
+                    if ( j%5 == 0) {
                         turn = (int) random(1,3);
                     }
 
@@ -577,15 +578,12 @@ public class CubeQuest {
                         s.dx += 1;
                     }
 
-                    if (j == 4) {
-                        j = 0;
-                    }
                 }
                 s.x = s.dx;
                 s.z = s.dz;
 
 
-            } else if (s.t > SPARK_LIFE_TIME) {
+             if (s.t > SPARK_LIFE_TIME) {
                 sparkSpawn(s);
             }
 
@@ -641,7 +639,7 @@ public class CubeQuest {
 
         s.x = (int) random(-WORLD_RADIUS, +WORLD_RADIUS);
         s.z = (int) random(-WORLD_RADIUS, +WORLD_RADIUS);
-        s.t = -SPARK_SPAWN_TIME;
+        s.t = 0.0f;
 
     }
 
@@ -652,7 +650,7 @@ public class CubeQuest {
     /**
      * Maximum number of Terrain instances.
      */
-    static final int   TERRAIN_COUNT = 10;
+    static final int   TERRAIN_COUNT = 30;
 
 
     /**
