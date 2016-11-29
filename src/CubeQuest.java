@@ -860,16 +860,6 @@ public class CubeQuest {
     // -----------------------------------------------------------------------------------------------------------------
 
     /**
-     * Set the values of dest to those of src.
-     *
-     * @param src  Source tuple.
-     * @param dest Destination tuple.
-     */
-    private static void set(float[] src, float[] dest) { System.arraycopy(src, 0, dest, 0, src.length); }
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    /**
      * A full turn around the unit circumference.
      */
     private static final float TURN = (float) (2.0d*Math.PI);
@@ -1102,58 +1092,6 @@ public class CubeQuest {
         glEnd();
 
     }
-    //-----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Plot an uncapped unit cylinder with n sides. The extrema of the cylinder will be at Y = +/- 1.
-     *
-     * @param n An int.
-     */
-    private static void plotUnitCylinder(int n) {
-
-        // p->q will represent the current base edge we are on
-        float TURN= (float) (2.0*Math.PI);
-        float[] p = new float[3];
-        float[] q = new float[3];
-        setSpherical(0.0f, 0.0f, 1.0f, q);
-
-        // plot triangle faces
-        glBegin(GL_QUADS);
-        for (int i = 1; i <= n; i++) {
-
-            // go to next base edge
-            set(q, p);
-            setSpherical((TURN*i)/n, 0.0f, 1.0f, q);
-
-            // plot current quad
-            glNormal3f(p[0], 0.0f, p[2]); glVertex3f(p[0], -1.0f, p[2]);
-            glNormal3f(q[0], 0.0f, q[2]); glVertex3f(q[0], -1.0f, q[2]);
-            glNormal3f(q[0], 0.0f, q[2]); glVertex3f(q[0], +1.0f, q[2]);
-            glNormal3f(p[0], 0.0f, p[2]); glVertex3f(p[0], +1.0f, p[2]);
-
-        }
-        glEnd();
-
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Set the components of point dest based on the spherical parameters theta, phi, and r.
-     *
-     * @param theta The azimuth about the Y axis in radians.
-     * @param phi   The elevation above the XZ plane in radians.
-     * @param r     The distance from the origin.
-     * @param dest  Destination point.
-     */
-    private static void setSpherical(float theta, float phi, float r, float[] dest) {
-
-        dest[1] =    (float) sin(phi)*r;
-        float r_xz = (float) cos(phi)*r;
-        dest[0] =    (float) cos(theta)*r_xz;
-        dest[2] =    (float) sin(theta)*r_xz;
-
-    }
 
     // =========================================================================
     // CAMERA
@@ -1346,11 +1284,8 @@ public class CubeQuest {
 
         playerInit();
         enemiesInit();
-<<<<<<< HEAD
         p.potionsInit();
-=======
         TerrainInit();
->>>>>>> origin
 
     }
 
@@ -1533,19 +1468,16 @@ public class CubeQuest {
             worldPlotFloor();
             playerPlotShots();
             enemiesPlot();
-<<<<<<< HEAD
             p.plotPotion();
 
-=======
             plotTreasureChest();
             glPushMatrix();{
-            float height = (float) Math.sin(System.currentTimeMillis()/200);
+            float height = (float) Math.sin((float)(System.currentTimeMillis() % (200 * 2*PI)) / 200f);
             glTranslatef(0.0f,2.0f+height,0.0f);
             plotSword();
             glPopMatrix();
             }
             terrainPlot();
->>>>>>> origin
         }
         glPopMatrix();
 
