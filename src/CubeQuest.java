@@ -15,6 +15,8 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * CSC 322: Introduction to Computer Graphics, Fall 2016
  *
  * Patricio Simari, PhD
+ * Pasham Adwani
+ * Houng Pham
  * Electrical Engineering and Computer Science
  * The Catholic University of America
  */
