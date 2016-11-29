@@ -1,25 +1,15 @@
 import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
-import java.awt.*;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.lwjgl.*;
-import org.lwjgl.util.vector.Vector2f;
-
-import java.lang.*;
-
 import static java.lang.Math.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 /**
@@ -31,6 +21,8 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * Michael Monaghan
  * Tan Tran
  * Shay Mento
+ * Houng Pham
+ * Pasham Adwani
  * Electrical Engineering and Computer Science
  * The Catholic University of America
  */
