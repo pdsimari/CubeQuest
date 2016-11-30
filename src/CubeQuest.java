@@ -1576,8 +1576,9 @@ public class CubeQuest {
             p.plotPotion();
             glPopMatrix();}
             if(p.collisionPlayerandPickup() == 1){
-                p.x = -100.0f;
-                p.z = -100.0f;
+                //p.x = -100.0f;
+                //p.z = -100.0f;
+                p.potionsInit();
             }
 
             glPushMatrix();{
