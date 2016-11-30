@@ -22,7 +22,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * Michael Monaghan
  * Tan Tran
  * Shay Mento
- * Houng Pham
+ * Huong Pham
  * Pasham Adwani
  * Electrical Engineering and Computer Science
  * The Catholic University of America
