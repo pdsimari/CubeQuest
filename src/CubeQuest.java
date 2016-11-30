@@ -82,6 +82,256 @@ public class CubeQuest {
     static final float PLAYER_SHOT_DELAY = PLAYER_SHOT_DURATION/
             PLAYER_SHOT_MAX;
 
+
+//----------------------------------------------------------------------------------------------------------------------
+    /**
+     * Player Model:
+     */
+    private static void walle()
+    {
+        //head
+        glEnable(GL_LIGHTING);
+        glShadeModel(GL_SMOOTH);
+        glColor3f(0.9f,0.95f,0.9f);
+        glPushMatrix();
+        {
+            glTranslatef(0.0f,0.0f,0.0f);
+            glScalef(1.8f,2.0f,1.4f);
+            plotUnitHemisphere(20);
+        }
+        glPopMatrix();
+        //face
+        glColor3f(0.0f,0.0f,0.4f);
+        glPushMatrix();
+        {
+            glTranslatef(0.0f,0.7f,1.1f);
+            glScalef(1.0f,0.8f,0.4f);
+            plotUnitSphere(10);
+        }
+        glPopMatrix();
+        //neck
+        glColor3f(0.9f,0.95f,0.9f);
+        glPushMatrix();
+        {
+            glTranslatef(0.0f,0.0f,0.0f);
+            glScalef(1.8f,1.0f,1.4f);
+            plotUnitSphere(20);
+        }
+        glPopMatrix();
+        //eyes1
+        glColor3f(0.0f,0.5f,1.0f);
+        glPushMatrix();
+        {
+            glTranslatef(0.45f,0.8f,1.3f);
+            glScalef(0.2f,0.2f,0.2f);
+            plotUnitSphere(20);
+        }
+        glPopMatrix();
+        //eyes2
+        glColor3f(0.0f,0.5f,1.0f);
+        glPushMatrix();
+        {
+            glTranslatef(-0.45f,0.8f,+1.3f);
+            glScalef(0.2f,0.2f,0.2f);
+            plotUnitSphere(20);
+        }
+        glPopMatrix();
+        //shoulder
+        glColor3f(0.9f,0.95f,0.9f);
+        glPushMatrix();
+        {
+            glTranslatef(0.0f,-2.0f,0.0f);
+            glScalef(2.5f,0.8f,1.6f);
+            plotUnitSphere(20);
+        }
+        glPopMatrix();
+        //body
+        glColor3f(0.9f,0.95f,0.9f);
+        glPushMatrix();
+        {
+            glTranslatef(0.0f,-2.0f,0.0f);
+            glRotatef(180.0f,1.0f,0.0f,0.0f);
+            glScalef(2.5f,5.0f,1.6f);
+            plotUnitHemisphere(20);
+        }
+        glPopMatrix();
+        //Hand-R
+        glColor3f(0.9f,0.95f,0.9f);
+        glPushMatrix();
+        {
+            glTranslatef(+3.0f,-4.0f,0.0f);
+            glRotatef(90.0f,1.0f,0.0f,0.0f);
+            glScalef(0.3f,0.8f,1.6f);
+            plotUnitSphere(10);
+        }
+        glPopMatrix();
+        //Hand-L
+        glColor3f(0.9f,0.95f,0.9f);
+        glPushMatrix();
+        {
+            glTranslatef(-3.0f,-4.0f,0.0f);
+            glRotatef(90.0f,1.0f,0.0f,0.0f);
+            glScalef(0.3f,0.8f,1.6f);
+            plotUnitSphere(10);
+        }
+        glPopMatrix();
+    }
+//-------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+    /**
+     * Plot a regular polygon of n sides lying on the XZ plane and having vertices that are a distance of 1 from the
+     * origin.
+     *
+     * @param n An int.
+     */
+    private static void plotUnitPolygon(int n) {
+
+        final float inc = (float) ((Math.PI*2.0d)/n);
+        float[] p = new float[3];
+        glNormal3f(0.0f, 1.0f, 0.0f);
+        glBegin(GL_POLYGON);
+        {
+            // generate n vertices
+            float ang = 0.0f;
+            for (int i = 0; i < n; i++) {
+                setSpherical(ang, 0.0f, 1.0f, p);
+                glVertex3f(p[0], p[1], p[2]);
+                ang += inc;
+            }
+        }
+        glEnd();
+
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Plot a unit sphere with n bands of azimuth and n/2 bands of elevation.
+     *
+     * @param n Number of azimuth bands.
+     */
+    private static void plotUnitSphere(int n) {
+
+        // p->q will represent the current edge we are on
+        float[] p = new float[3];
+        float[] q = new float[3];
+
+        float theta, phi;
+
+        // north pole cap
+        glBegin(GL_TRIANGLES);
+        {
+            phi = TURN/4 - TURN/n;
+            setSpherical(0.0f,  phi, 1.0f, q);
+            for (int i = 1; i <= n; i++) {
+
+                // set up edge
+                theta = (TURN*i)/n;
+                set(q, p);
+                setSpherical(theta, phi, 1.0f, q);
+
+                // plot triangle
+                glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
+                glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
+                glNormal3f(0.0f, 1.0f, 0.0f); glVertex3f(0.0f, 1.0f, 0.0f);
+
+            }
+
+        }
+        glEnd();
+
+        // middle bands
+        glBegin(GL_QUADS);
+        {
+
+            float[] r = new float[3];
+            float[] s = new float[3];
+            for (int i = 2; i < (n/2); i++) {
+                for (int j = 0; j < n; j++) {
+
+                    // update theta phi
+                    phi = TURN/4 - (TURN*i)/n;
+                    theta = (TURN*j)/n;
+
+                    // set point locations
+                    setSpherical(theta,          phi,          1.0f, p);
+                    setSpherical(theta + TURN/n, phi,          1.0f, q);
+                    setSpherical(theta + TURN/n, phi + TURN/n, 1.0f, r);
+                    setSpherical(theta,          phi + TURN/n, 1.0f, s);
+
+                    // plot quad
+                    glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
+                    glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
+                    glNormal3f(r[0], r[1], r[2]); glVertex3f(r[0], r[1], r[2]);
+                    glNormal3f(s[0], s[1], s[2]); glVertex3f(s[0], s[1], s[2]);
+
+                }
+
+            }
+
+        }
+        glEnd();
+
+        // south pole cap
+        glBegin(GL_TRIANGLES);
+        {
+            phi = -TURN/4 + TURN/n;
+            setSpherical(0.0f,  phi, 1.0f, q);
+            for (int i = 1; i <= n; i++) {
+
+                // set up edge
+                theta = (TURN*i)/n;
+                set(q, p);
+                setSpherical(theta, phi, 1.0f, q);
+
+                // plot triangle
+                glNormal3f(0.0f, -1.0f, 0.0f); glVertex3f(0.0f, -1.0f, 0.0f);
+                glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
+                glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
+
+            }
+
+        }
+        glEnd();
+
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Set the coordinate values of dest to x, y, and z.
+     *
+     * @param x The x coordinate.
+     * @param y The y coordinate.
+     * @param z The z coordinate.
+     * @param dest The destination point.
+     */
+    private static void set(float x, float y, float z, float[] dest) { dest[0] = x; dest[1] = y; dest[2] = z; }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Float version of PI.
+     */
+    private static final float PI = (float) Math.PI;
+
+    /**
+     * A full turn around the unit circumference.
+     */
+    private static final float TURN = (float) (2.0d*Math.PI);
+
+
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
     /**
      * Player structure.
      */
@@ -106,8 +356,16 @@ public class CubeQuest {
         float airTime = 0;
         float jumpStartHeight = 0;
         // Jumping Parameters.
-        float jumpInitialSpeed = 20;
-        float gravity = -100;
+        float jumpInitialSpeed = 8;
+        float gravity = -20;
+
+        // floating parameters
+        float floatingPeriod = 4.0f;
+        float floatingMagnitude = 0.1f;
+        // floating mechanics
+        float floatTime;
+        float floatOffset;
+
 
         // direction of movement (+/- 1)
         float dx = 0.0f;
@@ -135,6 +393,7 @@ public class CubeQuest {
             jumping = true;
             airTime = 0;
             jumpStartHeight = y;
+            floatTime = 0;
         }
 
         /**
@@ -167,16 +426,20 @@ public class CubeQuest {
                 }
             }
 
-            // Calculate jump height
+            // Calculate jump height if above ground
             if (jumping) {
                 airTime += dt;
                 y = jumpStartHeight + jumpInitialSpeed*airTime + gravity*airTime*airTime/2.0f;
                 // check for ground collision.
-                if (y <= 0) {
+                if (y <= 0) { // if below ground
                     jumping = doubleJumping = false;
                     y = 0;
                 }
             }
+
+            // find float offset
+            floatTime += (dt / floatingPeriod * 2*PI) % (2*PI);
+            floatOffset = (float) (-sin(floatTime) * floatingMagnitude);
 
         }
 
@@ -231,11 +494,20 @@ public class CubeQuest {
         // plot player avatar
         glPushMatrix();
         {
-            glColor3f(1.0f, 0.0f, 0.0f);
-            glTranslatef(player.x, 0.5f + player.y, player.z);
+           // glColor3f(1.0f, 0.0f, 0.0f);
+            glTranslatef(player.x, player.y+player.floatOffset+2.0f, player.z);
             glRotatef(player.rotation, 0.0f, 1.0f, 0.0f);
-            glScalef(0.5f, 0.5f, 0.5f);
-            plotSolidCube();
+            glScalef(0.25f, 0.25f, 0.25f);
+            walle();
+        }
+        glPopMatrix();
+        glPushMatrix();
+        {
+            glColor3f(0.25f,0.25f,0.25f);
+            glTranslatef(player.x ,0.0f,player.z);
+            glRotatef(180.0f,1.0f,0.0f,0.0f);
+            glScalef(0.5f,0.0f,0.5f);
+            plotUnitPolygon(20);
         }
         glPopMatrix();
 
@@ -579,7 +851,7 @@ public class CubeQuest {
                 glPushMatrix();
                 {
                     glScalef(c.Width, c.Height, c.Width);
-                    glTranslatef(0.0f, 0.0f, 0.0f);
+                    glTranslatef(0.0f, 1.0f, 0.0f);
                     plotSolidCube();
                 }
                 glPopMatrix();
@@ -884,11 +1156,6 @@ public class CubeQuest {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * A full turn around the unit circumference.
-     */
-    private static final float TURN = (float) (2.0d*Math.PI);
 
     // =========================================================================
     // WORLD
@@ -1570,8 +1837,9 @@ public class CubeQuest {
             playerPlotShots();
             enemiesPlot();
 
+            float height = (float) Math.sin(((System.currentTimeMillis()) % (1000 * 4)) * (2 * PI) / 1000 / 4);
+
             glPushMatrix();{
-            float height = (float) Math.sin((float) (System.currentTimeMillis() % (200 * 2 * PI)) / 200f);
             glTranslatef(0.0f, 1.0f + height, 0.0f);
             p.plotPotion();
             glPopMatrix();}
@@ -1584,15 +1852,13 @@ public class CubeQuest {
             glPushMatrix();{
             glScalef(0.2f,0.2f,0.2f);
             plotTreasureChest();
-            float height = (float) Math.sin((float) (System.currentTimeMillis() % (200 * 2 * PI)) / 200f);
             glTranslatef(0.0f,2.0f+height,0.0f);
             plotSword();
             glPopMatrix();
             }
-            //terrainPlot();
+            terrainPlot();
         }
         glPopMatrix();
-
     }
 
     static void updateOpenGLProjectionMatrix() {
