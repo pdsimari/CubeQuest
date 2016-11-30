@@ -1,4 +1,5 @@
 import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -84,6 +85,13 @@ public class CubeQuest {
      * Player structure.
      */
     static class Player {
+
+        float health = 100;
+        float maxHealth = 100;
+
+        boolean isAlive() {
+            return health > 0;
+        }
 
         // position in the zx plane
         float x = 0.0f;
@@ -1202,6 +1210,10 @@ public class CubeQuest {
      * @throws Exception
      */
     static void gameInit() throws Exception {
+
+        // Enable support for High DPI displays.
+        System.setProperty("org.lwjgl.opengl.Display.enableHighDPI", "true");
+
         // initialize the display
         Display.setTitle(APP_TITLE);
         Display.setFullscreen(false);
@@ -1209,27 +1221,11 @@ public class CubeQuest {
         Display.setResizable(true);
         Display.create();
 
+        updateOpenGLProjectionMatrix();
+
         //Mouse, sets it to be hidden
         Mouse.create();
         Mouse.setGrabbed(true);
-
-
-
-        // get display size
-        int width = Display.getDisplayMode().getWidth();
-        int height = Display.getDisplayMode().getHeight();
-
-        // viewport
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glViewport(0, 0, width, height);
-
-        // perspective transformation
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        float aspectRatio = ((float) width)/height;
-        gluPerspective(camera.fieldOfView, aspectRatio,
-                camera.nearPlane, camera.farPlane);
 
         // background color
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1362,16 +1358,28 @@ public class CubeQuest {
 
         // escape to quit
         while (Keyboard.next()) {
-            if (Keyboard.getEventKeyState() &&
-                    Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+            if (Keyboard.getEventKeyState()) {
+                if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
 
-                finished = true;
+                    finished = true;
 
+                } else if (Keyboard.getEventKey() == Keyboard.KEY_F11) {
+                    toggleFullscreen();
+                }
             }
         }
 
         // TODO: Add other game input handling.
 
+    }
+
+    private static void toggleFullscreen() {
+        try {
+            Display.setFullscreen(!Display.isFullscreen());
+            updateOpenGLProjectionMatrix();
+        } catch (LWJGLException e) {
+            e.printStackTrace();
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1439,8 +1447,16 @@ public class CubeQuest {
      */
     static void gameRenderFrame() {
 
+        // The viewport and projection matrices must be updated when the window size changes
+        if (Display.wasResized()) {
+            updateOpenGLProjectionMatrix();
+        }
+
         // clear the screen and depth buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Render the UI
+        renderUI();
 
         // viewing transformation (bottom of the model-view stack)
         glMatrixMode(GL_MODELVIEW);
@@ -1473,6 +1489,104 @@ public class CubeQuest {
         }
         glPopMatrix();
 
+    }
+
+    static void updateOpenGLProjectionMatrix() {
+
+        // Spit out window dimensions for debug
+        System.out.println("Width:\t" + Display.getWidth());
+        System.out.println("Height:\t" + Display.getHeight());
+        System.out.println("HiDPI Scaling:\t" + Display.getPixelScaleFactor());
+
+        // get display size
+        int width = (int) (Display.getWidth() * Display.getPixelScaleFactor());
+        int height = (int) (Display.getHeight() * Display.getPixelScaleFactor());
+
+        // viewport
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glViewport(0, 0, width, height);
+
+        // perspective transformation
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        float aspectRatio = ((float) width) / height;
+        gluPerspective(camera.fieldOfView, aspectRatio,
+                camera.nearPlane, camera.farPlane);
+    }
+
+    /**
+     * Renders all the UI
+     * (0,0) is at the bottom left corner of the display.
+     */
+    static void renderUI() {
+        // Make everything in density independent screen coordinates.
+        float width = Display.getWidth();
+        float height = Display.getHeight();
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        {
+            // make everything in screen coordinates.
+            glLoadIdentity();
+            glTranslatef(-1.0f,-1.0f,-1.0f);
+            glScalef(1/(width/2.0f),1/(height/2.0f),1.0f);
+
+            // No shading required for UI elements.
+            glDisable(GL_LIGHTING);
+
+            // Test Pattern
+            /*glBegin(GL_QUADS);
+            {
+                glColor4f(1.0f,1.0f, 1.0f, 1.0f);
+                glVertex2f(0f, 0f);
+                glVertex2f(width/2, 0f);
+                glVertex2d(width/2, height/2);
+                glVertex2f(0f, height/2);
+
+
+                glColor4f(1.0f,0.0f, 0.0f, 1.0f);
+                glVertex2f(width/2, height/2);
+                glVertex2f(width-10, height/2);
+                glVertex2d(width-10, height-10);
+                glVertex2f(width/2, height-10);
+            }
+            glEnd();*/
+
+            renderHealth(width, height);
+        }
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+
+    static void renderHealth(float width, float height) {
+        float margin = 50.0f;
+        float maxBarHeight = 200;
+        float barWidth = 50;
+
+        float barHeight = maxBarHeight * player.health / player.maxHealth;
+        glPushMatrix();
+        glTranslatef(margin, margin, 0.0f);
+        glBegin(GL_QUADS);
+        {
+            glColor3f(0.5f,0.5f,0.5f);
+            glVertex2d(0.0f,barHeight);
+            glVertex2d(barWidth,barHeight);
+            glVertex2d(barWidth,maxBarHeight);
+            glVertex2d(0.0f,maxBarHeight);
+
+            glColor3f(1.0f,0.0f,0.0f);
+            glVertex2d(0.0f,0.0f);
+            glVertex2d(barWidth,0.0f);
+            glVertex2d(barWidth,barHeight);
+            glVertex2d(0.0f,barHeight);
+        }
+        glEnd();
+        glPopMatrix();
     }
 
     // -------------------------------------------------------------------------
