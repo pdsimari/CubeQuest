@@ -91,12 +91,13 @@ public class CubeQuest {
     {
         //head
         glEnable(GL_LIGHTING);
+        glShadeModel(GL_SMOOTH);
         glColor3f(0.9f,0.95f,0.9f);
         glPushMatrix();
         {
             glTranslatef(0.0f,0.0f,0.0f);
             glScalef(1.8f,2.0f,1.4f);
-            plotUnitHemisphere(100);
+            plotUnitHemisphere(20);
         }
         glPopMatrix();
         //face
@@ -105,7 +106,7 @@ public class CubeQuest {
         {
             glTranslatef(0.0f,0.7f,1.1f);
             glScalef(1.0f,0.8f,0.4f);
-            plotUnitSphere(100);
+            plotUnitSphere(10);
         }
         glPopMatrix();
         //neck
@@ -114,7 +115,7 @@ public class CubeQuest {
         {
             glTranslatef(0.0f,0.0f,0.0f);
             glScalef(1.8f,1.0f,1.4f);
-            plotUnitSphere(100);
+            plotUnitSphere(20);
         }
         glPopMatrix();
         //eyes1
@@ -123,7 +124,7 @@ public class CubeQuest {
         {
             glTranslatef(0.45f,0.8f,1.3f);
             glScalef(0.2f,0.2f,0.2f);
-            plotUnitSphere(100);
+            plotUnitSphere(20);
         }
         glPopMatrix();
         //eyes2
@@ -132,7 +133,7 @@ public class CubeQuest {
         {
             glTranslatef(-0.45f,0.8f,+1.3f);
             glScalef(0.2f,0.2f,0.2f);
-            plotUnitSphere(100);
+            plotUnitSphere(20);
         }
         glPopMatrix();
         //shoulder
@@ -141,7 +142,7 @@ public class CubeQuest {
         {
             glTranslatef(0.0f,-2.0f,0.0f);
             glScalef(2.5f,0.8f,1.6f);
-            plotUnitSphere(100);
+            plotUnitSphere(20);
         }
         glPopMatrix();
         //body
@@ -151,17 +152,7 @@ public class CubeQuest {
             glTranslatef(0.0f,-2.0f,0.0f);
             glRotatef(180.0f,1.0f,0.0f,0.0f);
             glScalef(2.5f,5.0f,1.6f);
-            plotUnitHemisphere(100);
-        }
-        glPopMatrix();
-        //Shadow/Stand/....
-        glColor3f(0.5f,0.5f,0.5f);
-        glPushMatrix();
-        {
-            glTranslatef(0.0f,-8.0f,0.0f);
-            glRotatef(180.0f,1.0f,0.0f,0.0f);
-            glScalef(2.5f,0.3f,1.6f);
-            plotUnitPolygon(100);
+            plotUnitHemisphere(20);
         }
         glPopMatrix();
         //Hand-R
@@ -171,7 +162,7 @@ public class CubeQuest {
             glTranslatef(+3.0f,-4.0f,0.0f);
             glRotatef(90.0f,1.0f,0.0f,0.0f);
             glScalef(0.3f,0.8f,1.6f);
-            plotUnitSphere(100);
+            plotUnitSphere(10);
         }
         glPopMatrix();
         //Hand-L
@@ -181,7 +172,7 @@ public class CubeQuest {
             glTranslatef(-3.0f,-4.0f,0.0f);
             glRotatef(90.0f,1.0f,0.0f,0.0f);
             glScalef(0.3f,0.8f,1.6f);
-            plotUnitSphere(100);
+            plotUnitSphere(10);
         }
         glPopMatrix();
     }
@@ -368,6 +359,14 @@ public class CubeQuest {
         float jumpInitialSpeed = 20;
         float gravity = -100;
 
+        // floating parameters
+        float floatingPeriod = 4.0f;
+        float floatingMagnitude = 0.1f;
+        // floating mechanics
+        float floatTime;
+        float floatOffset;
+
+
         // direction of movement (+/- 1)
         float dx = 0.0f;
         float dz = 0.0f;
@@ -394,6 +393,7 @@ public class CubeQuest {
             jumping = true;
             airTime = 0;
             jumpStartHeight = y;
+            floatTime = 0;
         }
 
         /**
@@ -426,16 +426,20 @@ public class CubeQuest {
                 }
             }
 
-            // Calculate jump height
+            // Calculate jump height if above ground
             if (jumping) {
                 airTime += dt;
                 y = jumpStartHeight + jumpInitialSpeed*airTime + gravity*airTime*airTime/2.0f;
                 // check for ground collision.
-                if (y <= 0) {
+                if (y <= 0) { // if below ground
                     jumping = doubleJumping = false;
                     y = 0;
                 }
             }
+
+            // find float offset
+            floatTime += (dt / floatingPeriod * 2*PI) % (2*PI);
+            floatOffset = (float) (-sin(floatTime) * floatingMagnitude);
 
         }
 
@@ -491,10 +495,19 @@ public class CubeQuest {
         glPushMatrix();
         {
            // glColor3f(1.0f, 0.0f, 0.0f);
-            glTranslatef(player.x, player.y+2.0f, player.z);
+            glTranslatef(player.x, player.y+player.floatOffset+2.0f, player.z);
             glRotatef(player.rotation, 0.0f, 1.0f, 0.0f);
             glScalef(0.25f, 0.25f, 0.25f);
             walle();
+        }
+        glPopMatrix();
+        glPushMatrix();
+        {
+            glColor3f(0.25f,0.25f,0.25f);
+            glTranslatef(player.x ,0.0f,player.z);
+            glRotatef(180.0f,1.0f,0.0f,0.0f);
+            glScalef(0.5f,0.0f,0.5f);
+            plotUnitPolygon(20);
         }
         glPopMatrix();
 
