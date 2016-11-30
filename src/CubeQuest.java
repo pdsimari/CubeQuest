@@ -1851,7 +1851,7 @@ public class CubeQuest {
             glPushMatrix();{
             glScalef(0.2f,0.2f,0.2f);
             plotTreasureChest();
-            float height = (float) Math.sin((float)(System.currentTimeMillis() % (200 * 2*PI)) / 200f);
+            float height = (float) Math.sin(((System.currentTimeMillis())%(1000*4)) * (2*PI) / 1000 / 4);
             glTranslatef(0.0f,2.0f+height,0.0f);
             plotSword();
             glPopMatrix();
@@ -1859,7 +1859,6 @@ public class CubeQuest {
             terrainPlot();
         }
         glPopMatrix();
-
     }
 
     static void updateOpenGLProjectionMatrix() {
