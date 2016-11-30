@@ -1,4 +1,5 @@
 import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -20,8 +21,9 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * Patricio Simari, PhD
  * Michael Monaghan
  * Tan Tran
+ * Michael Hassoun
  * Shay Mento
- * Houng Pham
+ * Huong Pham
  * Pasham Adwani
  * Electrical Engineering and Computer Science
  * The Catholic University of America
@@ -85,10 +87,27 @@ public class CubeQuest {
      */
     static class Player {
 
+        float health = 100;
+        float maxHealth = 100;
+
+        boolean isAlive() {
+            return health > 0;
+        }
+
         // position in the zx plane
         float x = 0.0f;
         float z = 0.0f;
         float rotation = 0.0f;
+
+        // Jumping Mechanics.
+        float y = 0;
+        boolean jumping = false;
+        boolean doubleJumping = false;
+        float airTime = 0;
+        float jumpStartHeight = 0;
+        // Jumping Parameters.
+        float jumpInitialSpeed = 20;
+        float gravity = -100;
 
         // direction of movement (+/- 1)
         float dx = 0.0f;
@@ -103,6 +122,63 @@ public class CubeQuest {
         // age (in seconds)
         float t = 0.0f;
 
+        public void jump() {
+            if (jumping) {
+                if (doubleJumping)
+                    return;
+                doubleJumping = true;
+            }
+
+            // Kinematic equation for jump:
+            // y = jumpStartHeight + jumpInitialSpeed*t + gravity*t/2
+
+            jumping = true;
+            airTime = 0;
+            jumpStartHeight = y;
+        }
+
+        /**
+         * Update player given dt, the number of seconds since last update.
+         *
+         * @param dt A float.
+         */
+        void update(float dt) {
+
+            // update player position
+
+            x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+            z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+            x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+            z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+
+
+            t += dt;
+
+
+            // update player shots (if active)
+            for (PlayerShot shot : shots) {
+                if (shot.t < PLAYER_SHOT_DURATION) {
+
+                    shot.t += dt;
+                    shot.x += shot.dx*PLAYER_SHOT_SPEED*dt;
+                    shot.z += shot.dz*PLAYER_SHOT_SPEED*dt;
+
+                }
+            }
+
+            // Calculate jump height
+            if (jumping) {
+                airTime += dt;
+                y = jumpStartHeight + jumpInitialSpeed*airTime + gravity*airTime*airTime/2.0f;
+                // check for ground collision.
+                if (y <= 0) {
+                    jumping = doubleJumping = false;
+                    y = 0;
+                }
+            }
+
+        }
 
     }
 
@@ -144,38 +220,6 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
-    /**
-     * Update player given dt, the number of seconds since last update.
-     *
-     * @param dt A float.
-     */
-    static void playerUpdate(float dt) {
-
-        // update player position
-
-        player.x += -player.dz * PLAYER_SPEED * dt * sin(player.rotation * Math.PI / 180);
-        player.z += -player.dz * PLAYER_SPEED * dt * cos(player.rotation * Math.PI / 180);
-
-        player.x += player.dx * PLAYER_SPEED * dt * sin((player.rotation + 90) * Math.PI / 180);
-        player.z += player.dx * PLAYER_SPEED * dt * cos((player.rotation + 90) * Math.PI / 180);
-
-
-        player.t += dt;
-
-
-        // update player shots (if active)
-        for (PlayerShot shot : player.shots) {
-            if (shot.t < PLAYER_SHOT_DURATION) {
-
-                shot.t += dt;
-                shot.x += shot.dx*PLAYER_SHOT_SPEED*dt;
-                shot.z += shot.dz*PLAYER_SHOT_SPEED*dt;
-
-            }
-        }
-
-    }
-
     // -------------------------------------------------------------------------
 
     /**
@@ -188,7 +232,7 @@ public class CubeQuest {
         glPushMatrix();
         {
             glColor3f(1.0f, 0.0f, 0.0f);
-            glTranslatef(player.x, 0.5f, player.z);
+            glTranslatef(player.x, 0.5f + player.y, player.z);
             glRotatef(player.rotation, 0.0f, 1.0f, 0.0f);
             glScalef(0.5f, 0.5f, 0.5f);
             plotSolidCube();
@@ -271,7 +315,7 @@ public class CubeQuest {
     /**
      * Maximum number of enemies.
      */
-    static final int ENEMY_COUNT = 10;
+    static final int ENEMY_COUNT = 100;
 
     /**
      * Size of the enemies.
@@ -281,7 +325,7 @@ public class CubeQuest {
     /**
      * Enemy speed in distance per second.
      */
-    static final float ENEMY_SPEED = 1.0f;
+    static final float ENEMY_SPEED = 1.5f;
 
     /**
      * Time it takes for enemy to spawn in seconds.
@@ -395,7 +439,7 @@ public class CubeQuest {
                 }
                 else {
                     // color is green
-                    glColor3f(0.0f, 1.0f, 0.0f);
+                    glColor3f(0.0f, 1.0f, 1.0f);
                 }
 
                 // plot cube at enemy location
@@ -472,7 +516,7 @@ public class CubeQuest {
     /**
      * Maximum number of Terrain instances.
      */
-    static final int   TERRAIN_COUNT = 10;
+    static final int   TERRAIN_COUNT = 1000;
 
 
     /**
@@ -520,7 +564,7 @@ public class CubeQuest {
     static void terrainPlot() {
 
         // for each instance...
-        for (int i = 0; i < ENEMY_COUNT; i++) {
+        for (int i = 0; i < TERRAIN_COUNT; i++) {
 
             // consider current instance
             Terrain c = columns[i];
@@ -528,14 +572,14 @@ public class CubeQuest {
 
             glPushMatrix();
             {
-                glColor3f(0.0f,1.0f,0.0f);
+                glColor3f(1.0f/1.65f,1.0f* 0.42f,1.0f*0.42f);
 
                 // plot cube at terrain location
                 glTranslatef(c.x, 0.0f, c.z);
                 glPushMatrix();
                 {
                     glScalef(c.Width, c.Height, c.Width);
-                    glTranslatef(0.0f, 1.0f, 0.0f);
+                    glTranslatef(0.0f, 0.0f, 0.0f);
                     plotSolidCube();
                 }
                 glPopMatrix();
@@ -557,7 +601,7 @@ public class CubeQuest {
 
         //size
         c.Width = random(0.5f,2.0f);
-        c.Height = random(0.5f,3.0f);
+        c.Height = random(0.0f,3.0f);
 
         //position
         c.x = random(-WORLD_RADIUS, +WORLD_RADIUS);
@@ -863,7 +907,7 @@ public class CubeQuest {
     /**
      * Bounds of the world where enemies can spawn.
      */
-    static final float WORLD_RADIUS = 20.0f;
+    static final float WORLD_RADIUS = 100.0f;
 
     /**
      * Scale factor used for rendering.
@@ -875,7 +919,9 @@ public class CubeQuest {
     /**
      * Plot a grid on the ZX plane.
      */
-    static void worldPlotFloor() {
+
+    static void worldPlotFloor(float elevation) {
+
 
         float lower = (float) floor(-camera.farPlane) - 0.5f;
         float upper = (float)  ceil(+camera.farPlane) + 0.5f;
@@ -888,12 +934,12 @@ public class CubeQuest {
             {
                 glNormal3f(0.0f, 1.0f, 0.0f);
                 for (float x = lower; x <= upper; x += 1.0f) {
-                    glVertex3f(x, 0.0f, -camera.farPlane);
-                    glVertex3f(x, 0.0f, +camera.farPlane);
+                    glVertex3f(x, elevation, -camera.farPlane);
+                    glVertex3f(x, elevation, +camera.farPlane);
                 }
                 for (float z = lower; z <= upper; z += 1.0f) {
-                    glVertex3f(-camera.farPlane, 0.0f, z);
-                    glVertex3f(+camera.farPlane, 0.0f, z);
+                    glVertex3f(-camera.farPlane, elevation, z);
+                    glVertex3f(+camera.farPlane, elevation, z);
                 }
             }
             glEnd();
@@ -902,6 +948,60 @@ public class CubeQuest {
 
     }
 
+    static void worldPlotFloor2(float elevation2) {
+
+
+        float lower = (float) floor(-camera.farPlane) - 0.5f;
+        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
+
+        glDisable(GL_LIGHTING);
+        {
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
+            glLineWidth(0.2f);
+            glBegin(GL_LINES);
+            {
+                glNormal3f(0.0f, 1.0f, 0.0f);
+                for (float x = lower; x <= upper; x += 1.0f) {
+                    glVertex3f(x, elevation2, -camera.farPlane);
+                    glVertex3f(x, elevation2, +camera.farPlane);
+                }
+                for (float z = lower; z <= upper; z += 1.0f) {
+                    glVertex3f(-camera.farPlane, elevation2, z);
+                    glVertex3f(+camera.farPlane, elevation2, z);
+                }
+            }
+            glEnd();
+        }
+        glEnable(GL_LIGHTING);
+
+    }
+    static void worldPlotFloor3(float elevation3) {
+
+
+        float lower = (float) floor(-camera.farPlane) - 0.5f;
+        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
+
+        glDisable(GL_LIGHTING);
+        {
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
+            glLineWidth(0.2f);
+            glBegin(GL_LINES);
+            {
+                glNormal3f(0.0f, 1.0f, 0.0f);
+                for (float x = lower; x <= upper; x += 1.0f) {
+                    glVertex3f(x, elevation3, -camera.farPlane);
+                    glVertex3f(x, elevation3, +camera.farPlane);
+                }
+                for (float z = lower; z <= upper; z += 1.0f) {
+                    glVertex3f(-camera.farPlane, elevation3, z);
+                    glVertex3f(+camera.farPlane, elevation3, z);
+                }
+            }
+            glEnd();
+        }
+        glEnable(GL_LIGHTING);
+
+    }
     // -------------------------------------------------------------------------
     // Power Up
     // -----------------------------------------------------------------------------------------------------------------
@@ -1202,6 +1302,10 @@ public class CubeQuest {
      * @throws Exception
      */
     static void gameInit() throws Exception {
+
+        // Enable support for High DPI displays.
+        System.setProperty("org.lwjgl.opengl.Display.enableHighDPI", "true");
+
         // initialize the display
         Display.setTitle(APP_TITLE);
         Display.setFullscreen(false);
@@ -1209,27 +1313,11 @@ public class CubeQuest {
         Display.setResizable(true);
         Display.create();
 
+        updateOpenGLProjectionMatrix();
+
         //Mouse, sets it to be hidden
         Mouse.create();
         Mouse.setGrabbed(true);
-
-
-
-        // get display size
-        int width = Display.getDisplayMode().getWidth();
-        int height = Display.getDisplayMode().getHeight();
-
-        // viewport
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glViewport(0, 0, width, height);
-
-        // perspective transformation
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        float aspectRatio = ((float) width)/height;
-        gluPerspective(camera.fieldOfView, aspectRatio,
-                camera.nearPlane, camera.farPlane);
 
         // background color
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1289,18 +1377,18 @@ public class CubeQuest {
      */
     static void gameRun() {
 
-        long timeStamp = System.currentTimeMillis();
+        long last = System.currentTimeMillis();
+        long current = last;
         while (!finished) {
 
             // perform time step and render
-            float dt = 0.001f*(System.currentTimeMillis() - timeStamp);
+            float dt = 0.001f*(current - last);
             {
                 gameHandleInput();
                 gameUpdate(dt);
                 gameHandleCollisions();
                 gameRenderFrame();
             }
-            timeStamp = System.currentTimeMillis();
             Display.sync(FRAME_RATE);
 
             // make sure display is updated
@@ -1308,7 +1396,8 @@ public class CubeQuest {
             if (Display.isCloseRequested()) {
                 finished = true;
             }
-
+            last = current;
+            current = System.currentTimeMillis();
         }
 
     }
@@ -1362,16 +1451,32 @@ public class CubeQuest {
 
         // escape to quit
         while (Keyboard.next()) {
-            if (Keyboard.getEventKeyState() &&
-                    Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+            if (Keyboard.getEventKeyState()) {
+                if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
 
-                finished = true;
+                    finished = true;
 
+                }
+                if (Keyboard.getEventKey() == Keyboard.KEY_F11) {
+                    toggleFullscreen();
+                }
+                if (Keyboard.getEventKey() == Keyboard.KEY_SPACE) {
+                    player.jump();
+                }
             }
         }
 
         // TODO: Add other game input handling.
 
+    }
+
+    private static void toggleFullscreen() {
+        try {
+            Display.setFullscreen(!Display.isFullscreen());
+            updateOpenGLProjectionMatrix();
+        } catch (LWJGLException e) {
+            e.printStackTrace();
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1383,7 +1488,7 @@ public class CubeQuest {
 
         // TODO: add updates to all game elements.
 
-        playerUpdate(dt);
+        player.update(dt);
         enemiesUpdate(dt);
 
     }
@@ -1439,8 +1544,16 @@ public class CubeQuest {
      */
     static void gameRenderFrame() {
 
+        // The viewport and projection matrices must be updated when the window size changes
+        if (Display.wasResized()) {
+            updateOpenGLProjectionMatrix();
+        }
+
         // clear the screen and depth buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Render the UI
+        renderUI();
 
         // viewing transformation (bottom of the model-view stack)
         glMatrixMode(GL_MODELVIEW);
@@ -1457,13 +1570,20 @@ public class CubeQuest {
 
             // TODO: plot all game elements
 
-            worldPlotFloor();
+
+            worldPlotFloor(0);
+            worldPlotFloor(elevation);
+            worldPlotFloor2(0);
+            worldPlotFloor2(elevation2);
+            worldPlotFloor3(0);
+            worldPlotFloor3(elevation3);
             playerPlotShots();
             enemiesPlot();
             p.plotPotion();
 
-            plotTreasureChest();
             glPushMatrix();{
+            glScalef(0.2f,0.2f,0.2f);
+            plotTreasureChest();
             float height = (float) Math.sin((float)(System.currentTimeMillis() % (200 * 2*PI)) / 200f);
             glTranslatef(0.0f,2.0f+height,0.0f);
             plotSword();
@@ -1473,6 +1593,104 @@ public class CubeQuest {
         }
         glPopMatrix();
 
+    }
+
+    static void updateOpenGLProjectionMatrix() {
+
+        // Spit out window dimensions for debug
+        System.out.println("Width:\t" + Display.getWidth());
+        System.out.println("Height:\t" + Display.getHeight());
+        System.out.println("HiDPI Scaling:\t" + Display.getPixelScaleFactor());
+
+        // get display size
+        int width = (int) (Display.getWidth() * Display.getPixelScaleFactor());
+        int height = (int) (Display.getHeight() * Display.getPixelScaleFactor());
+
+        // viewport
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glViewport(0, 0, width, height);
+
+        // perspective transformation
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        float aspectRatio = ((float) width) / height;
+        gluPerspective(camera.fieldOfView, aspectRatio,
+                camera.nearPlane, camera.farPlane);
+    }
+
+    /**
+     * Renders all the UI
+     * (0,0) is at the bottom left corner of the display.
+     */
+    static void renderUI() {
+        // Make everything in density independent screen coordinates.
+        float width = Display.getWidth();
+        float height = Display.getHeight();
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        {
+            // make everything in screen coordinates.
+            glLoadIdentity();
+            glTranslatef(-1.0f,-1.0f,-1.0f);
+            glScalef(1/(width/2.0f),1/(height/2.0f),1.0f);
+
+            // No shading required for UI elements.
+            glDisable(GL_LIGHTING);
+
+            // Test Pattern
+            /*glBegin(GL_QUADS);
+            {
+                glColor4f(1.0f,1.0f, 1.0f, 1.0f);
+                glVertex2f(0f, 0f);
+                glVertex2f(width/2, 0f);
+                glVertex2d(width/2, height/2);
+                glVertex2f(0f, height/2);
+
+
+                glColor4f(1.0f,0.0f, 0.0f, 1.0f);
+                glVertex2f(width/2, height/2);
+                glVertex2f(width-10, height/2);
+                glVertex2d(width-10, height-10);
+                glVertex2f(width/2, height-10);
+            }
+            glEnd();*/
+
+            renderHealth(width, height);
+        }
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+
+    static void renderHealth(float width, float height) {
+        float margin = 50.0f;
+        float maxBarHeight = 200;
+        float barWidth = 50;
+
+        float barHeight = maxBarHeight * player.health / player.maxHealth;
+        glPushMatrix();
+        glTranslatef(margin, margin, 0.0f);
+        glBegin(GL_QUADS);
+        {
+            glColor3f(0.5f,0.5f,0.5f);
+            glVertex2d(0.0f,barHeight);
+            glVertex2d(barWidth,barHeight);
+            glVertex2d(barWidth,maxBarHeight);
+            glVertex2d(0.0f,maxBarHeight);
+
+            glColor3f(1.0f,0.0f,0.0f);
+            glVertex2d(0.0f,0.0f);
+            glVertex2d(barWidth,0.0f);
+            glVertex2d(barWidth,barHeight);
+            glVertex2d(0.0f,barHeight);
+        }
+        glEnd();
+        glPopMatrix();
     }
 
     // -------------------------------------------------------------------------
@@ -1512,6 +1730,10 @@ public class CubeQuest {
     }
 
     // -------------------------------------------------------------------------
+    static float elevation = random (10, 20);
+    static float elevation2= random  (20,30);
+    static float elevation3= random (30,40);
+    //--------------------------------------------------------------------------
 
     /**
      * Plot a unit cube (i.e, a cube spanning the [-1, 1] interval on the X, Y,
