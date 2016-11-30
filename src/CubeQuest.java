@@ -356,8 +356,8 @@ public class CubeQuest {
         float airTime = 0;
         float jumpStartHeight = 0;
         // Jumping Parameters.
-        float jumpInitialSpeed = 20;
-        float gravity = -100;
+        float jumpInitialSpeed = 8;
+        float gravity = -20;
 
         // floating parameters
         float floatingPeriod = 4.0f;
