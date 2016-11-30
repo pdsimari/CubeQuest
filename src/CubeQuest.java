@@ -21,6 +21,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  * Patricio Simari, PhD
  * Michael Monaghan
  * Tan Tran
+ * Michael Hassoun
  * Shay Mento
  * Huong Pham
  * Pasham Adwani
@@ -314,7 +315,7 @@ public class CubeQuest {
     /**
      * Maximum number of enemies.
      */
-    static final int ENEMY_COUNT = 10;
+    static final int ENEMY_COUNT = 100;
 
     /**
      * Size of the enemies.
@@ -324,7 +325,7 @@ public class CubeQuest {
     /**
      * Enemy speed in distance per second.
      */
-    static final float ENEMY_SPEED = 1.0f;
+    static final float ENEMY_SPEED = 1.5f;
 
     /**
      * Time it takes for enemy to spawn in seconds.
@@ -438,7 +439,7 @@ public class CubeQuest {
                 }
                 else {
                     // color is green
-                    glColor3f(0.0f, 1.0f, 0.0f);
+                    glColor3f(0.0f, 1.0f, 1.0f);
                 }
 
                 // plot cube at enemy location
@@ -515,7 +516,7 @@ public class CubeQuest {
     /**
      * Maximum number of Terrain instances.
      */
-    static final int   TERRAIN_COUNT = 10;
+    static final int   TERRAIN_COUNT = 1000;
 
 
     /**
@@ -563,7 +564,7 @@ public class CubeQuest {
     static void terrainPlot() {
 
         // for each instance...
-        for (int i = 0; i < ENEMY_COUNT; i++) {
+        for (int i = 0; i < TERRAIN_COUNT; i++) {
 
             // consider current instance
             Terrain c = columns[i];
@@ -571,14 +572,14 @@ public class CubeQuest {
 
             glPushMatrix();
             {
-                glColor3f(0.0f,1.0f,0.0f);
+                glColor3f(1.0f/1.65f,1.0f* 0.42f,1.0f*0.42f);
 
                 // plot cube at terrain location
                 glTranslatef(c.x, 0.0f, c.z);
                 glPushMatrix();
                 {
                     glScalef(c.Width, c.Height, c.Width);
-                    glTranslatef(0.0f, 1.0f, 0.0f);
+                    glTranslatef(0.0f, 0.0f, 0.0f);
                     plotSolidCube();
                 }
                 glPopMatrix();
@@ -600,7 +601,7 @@ public class CubeQuest {
 
         //size
         c.Width = random(0.5f,2.0f);
-        c.Height = random(0.5f,3.0f);
+        c.Height = random(0.0f,3.0f);
 
         //position
         c.x = random(-WORLD_RADIUS, +WORLD_RADIUS);
@@ -906,7 +907,7 @@ public class CubeQuest {
     /**
      * Bounds of the world where enemies can spawn.
      */
-    static final float WORLD_RADIUS = 20.0f;
+    static final float WORLD_RADIUS = 100.0f;
 
     /**
      * Scale factor used for rendering.
@@ -918,7 +919,9 @@ public class CubeQuest {
     /**
      * Plot a grid on the ZX plane.
      */
-    static void worldPlotFloor() {
+
+    static void worldPlotFloor(float elevation) {
+
 
         float lower = (float) floor(-camera.farPlane) - 0.5f;
         float upper = (float)  ceil(+camera.farPlane) + 0.5f;
@@ -931,12 +934,12 @@ public class CubeQuest {
             {
                 glNormal3f(0.0f, 1.0f, 0.0f);
                 for (float x = lower; x <= upper; x += 1.0f) {
-                    glVertex3f(x, 0.0f, -camera.farPlane);
-                    glVertex3f(x, 0.0f, +camera.farPlane);
+                    glVertex3f(x, elevation, -camera.farPlane);
+                    glVertex3f(x, elevation, +camera.farPlane);
                 }
                 for (float z = lower; z <= upper; z += 1.0f) {
-                    glVertex3f(-camera.farPlane, 0.0f, z);
-                    glVertex3f(+camera.farPlane, 0.0f, z);
+                    glVertex3f(-camera.farPlane, elevation, z);
+                    glVertex3f(+camera.farPlane, elevation, z);
                 }
             }
             glEnd();
@@ -945,6 +948,60 @@ public class CubeQuest {
 
     }
 
+    static void worldPlotFloor2(float elevation2) {
+
+
+        float lower = (float) floor(-camera.farPlane) - 0.5f;
+        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
+
+        glDisable(GL_LIGHTING);
+        {
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
+            glLineWidth(0.2f);
+            glBegin(GL_LINES);
+            {
+                glNormal3f(0.0f, 1.0f, 0.0f);
+                for (float x = lower; x <= upper; x += 1.0f) {
+                    glVertex3f(x, elevation2, -camera.farPlane);
+                    glVertex3f(x, elevation2, +camera.farPlane);
+                }
+                for (float z = lower; z <= upper; z += 1.0f) {
+                    glVertex3f(-camera.farPlane, elevation2, z);
+                    glVertex3f(+camera.farPlane, elevation2, z);
+                }
+            }
+            glEnd();
+        }
+        glEnable(GL_LIGHTING);
+
+    }
+    static void worldPlotFloor3(float elevation3) {
+
+
+        float lower = (float) floor(-camera.farPlane) - 0.5f;
+        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
+
+        glDisable(GL_LIGHTING);
+        {
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
+            glLineWidth(0.2f);
+            glBegin(GL_LINES);
+            {
+                glNormal3f(0.0f, 1.0f, 0.0f);
+                for (float x = lower; x <= upper; x += 1.0f) {
+                    glVertex3f(x, elevation3, -camera.farPlane);
+                    glVertex3f(x, elevation3, +camera.farPlane);
+                }
+                for (float z = lower; z <= upper; z += 1.0f) {
+                    glVertex3f(-camera.farPlane, elevation3, z);
+                    glVertex3f(+camera.farPlane, elevation3, z);
+                }
+            }
+            glEnd();
+        }
+        glEnable(GL_LIGHTING);
+
+    }
     // -------------------------------------------------------------------------
     // Power Up
     // -----------------------------------------------------------------------------------------------------------------
@@ -1512,7 +1569,13 @@ public class CubeQuest {
 
             // TODO: plot all game elements
 
-            worldPlotFloor();
+
+            worldPlotFloor(0);
+            worldPlotFloor(elevation);
+            worldPlotFloor2(0);
+            worldPlotFloor2(elevation2);
+            worldPlotFloor3(0);
+            worldPlotFloor3(elevation3);
             playerPlotShots();
             enemiesPlot();
             p.plotPotion();
@@ -1666,6 +1729,10 @@ public class CubeQuest {
     }
 
     // -------------------------------------------------------------------------
+    static float elevation = random (10, 20);
+    static float elevation2= random  (20,30);
+    static float elevation3= random (30,40);
+    //--------------------------------------------------------------------------
 
     /**
      * Plot a unit cube (i.e, a cube spanning the [-1, 1] interval on the X, Y,
