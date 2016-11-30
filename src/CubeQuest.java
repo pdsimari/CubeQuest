@@ -142,7 +142,7 @@ public class CubeQuest {
          *
          * @param dt A float.
          */
-        void playerUpdate(float dt) {
+        void update(float dt) {
 
             // update player position
 
@@ -1377,18 +1377,18 @@ public class CubeQuest {
      */
     static void gameRun() {
 
-        long timeStamp = System.currentTimeMillis();
+        long last = System.currentTimeMillis();
+        long current = last;
         while (!finished) {
 
             // perform time step and render
-            float dt = 0.001f*(System.currentTimeMillis() - timeStamp);
+            float dt = 0.001f*(current - last);
             {
                 gameHandleInput();
                 gameUpdate(dt);
                 gameHandleCollisions();
                 gameRenderFrame();
             }
-            timeStamp = System.currentTimeMillis();
             Display.sync(FRAME_RATE);
 
             // make sure display is updated
@@ -1396,7 +1396,8 @@ public class CubeQuest {
             if (Display.isCloseRequested()) {
                 finished = true;
             }
-
+            last = current;
+            current = System.currentTimeMillis();
         }
 
     }
@@ -1487,7 +1488,7 @@ public class CubeQuest {
 
         // TODO: add updates to all game elements.
 
-        player.playerUpdate(dt);
+        player.update(dt);
         enemiesUpdate(dt);
 
     }
