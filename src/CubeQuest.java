@@ -579,7 +579,7 @@ public class CubeQuest {
                 glPushMatrix();
                 {
                     glScalef(c.Width, c.Height, c.Width);
-                    glTranslatef(0.0f, 0.0f, 0.0f);
+                    glTranslatef(0.0f, 1.0f, 0.0f);
                     plotSolidCube();
                 }
                 glPopMatrix();
