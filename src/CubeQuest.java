@@ -98,6 +98,16 @@ public class CubeQuest {
         float z = 0.0f;
         float rotation = 0.0f;
 
+        // Jumping Mechanics.
+        float y = 0;
+        boolean jumping = false;
+        boolean doubleJumping = false;
+        float airTime = 0;
+        float jumpStartHeight = 0;
+        // Jumping Parameters.
+        float jumpInitialSpeed = 20;
+        float gravity = -100;
+
         // direction of movement (+/- 1)
         float dx = 0.0f;
         float dz = 0.0f;
@@ -111,6 +121,63 @@ public class CubeQuest {
         // age (in seconds)
         float t = 0.0f;
 
+        public void jump() {
+            if (jumping) {
+                if (doubleJumping)
+                    return;
+                doubleJumping = true;
+            }
+
+            // Kinematic equation for jump:
+            // y = jumpStartHeight + jumpInitialSpeed*t + gravity*t/2
+
+            jumping = true;
+            airTime = 0;
+            jumpStartHeight = y;
+        }
+
+        /**
+         * Update player given dt, the number of seconds since last update.
+         *
+         * @param dt A float.
+         */
+        void playerUpdate(float dt) {
+
+            // update player position
+
+            x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+            z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+            x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+            z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+
+
+            t += dt;
+
+
+            // update player shots (if active)
+            for (PlayerShot shot : shots) {
+                if (shot.t < PLAYER_SHOT_DURATION) {
+
+                    shot.t += dt;
+                    shot.x += shot.dx*PLAYER_SHOT_SPEED*dt;
+                    shot.z += shot.dz*PLAYER_SHOT_SPEED*dt;
+
+                }
+            }
+
+            // Calculate jump height
+            if (jumping) {
+                airTime += dt;
+                y = jumpStartHeight + jumpInitialSpeed*airTime + gravity*airTime*airTime/2.0f;
+                // check for ground collision.
+                if (y <= 0) {
+                    jumping = doubleJumping = false;
+                    y = 0;
+                }
+            }
+
+        }
 
     }
 
@@ -152,38 +219,6 @@ public class CubeQuest {
 
     // -------------------------------------------------------------------------
 
-    /**
-     * Update player given dt, the number of seconds since last update.
-     *
-     * @param dt A float.
-     */
-    static void playerUpdate(float dt) {
-
-        // update player position
-
-        player.x += -player.dz * PLAYER_SPEED * dt * sin(player.rotation * Math.PI / 180);
-        player.z += -player.dz * PLAYER_SPEED * dt * cos(player.rotation * Math.PI / 180);
-
-        player.x += player.dx * PLAYER_SPEED * dt * sin((player.rotation + 90) * Math.PI / 180);
-        player.z += player.dx * PLAYER_SPEED * dt * cos((player.rotation + 90) * Math.PI / 180);
-
-
-        player.t += dt;
-
-
-        // update player shots (if active)
-        for (PlayerShot shot : player.shots) {
-            if (shot.t < PLAYER_SHOT_DURATION) {
-
-                shot.t += dt;
-                shot.x += shot.dx*PLAYER_SHOT_SPEED*dt;
-                shot.z += shot.dz*PLAYER_SHOT_SPEED*dt;
-
-            }
-        }
-
-    }
-
     // -------------------------------------------------------------------------
 
     /**
@@ -196,7 +231,7 @@ public class CubeQuest {
         glPushMatrix();
         {
             glColor3f(1.0f, 0.0f, 0.0f);
-            glTranslatef(player.x, 0.5f, player.z);
+            glTranslatef(player.x, 0.5f + player.y, player.z);
             glRotatef(player.rotation, 0.0f, 1.0f, 0.0f);
             glScalef(0.5f, 0.5f, 0.5f);
             plotSolidCube();
@@ -1363,8 +1398,12 @@ public class CubeQuest {
 
                     finished = true;
 
-                } else if (Keyboard.getEventKey() == Keyboard.KEY_F11) {
+                }
+                if (Keyboard.getEventKey() == Keyboard.KEY_F11) {
                     toggleFullscreen();
+                }
+                if (Keyboard.getEventKey() == Keyboard.KEY_SPACE) {
+                    player.jump();
                 }
             }
         }
@@ -1391,7 +1430,7 @@ public class CubeQuest {
 
         // TODO: add updates to all game elements.
 
-        playerUpdate(dt);
+        player.playerUpdate(dt);
         enemiesUpdate(dt);
 
     }
