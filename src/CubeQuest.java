@@ -337,7 +337,7 @@ public class CubeQuest {
      */
     static class Player {
 
-        float health = 100;
+        float health = 70;
         float maxHealth = 100;
 
         boolean isAlive() {
@@ -885,8 +885,6 @@ public class CubeQuest {
 
     // size of the potion
     static final float ITEM_SIZE = 0.15f;
-    // time before potion despawns
-    static final float ITEM_DESPAWN_TIME = 10.0f;
     // potion spawn time (in seconds)
     static final float ITEM_SPAWN_TIME = 1.0f;
 
@@ -895,8 +893,6 @@ public class CubeQuest {
      */
     static class Potion {
 
-        // amount the potion heals
-        static final float POTION_HEAL = 3.0f;
         // number of potions allowed on the map.
         static final int POTION_COUNT = 1;
 
@@ -907,18 +903,6 @@ public class CubeQuest {
         // age (in seconds)
         float time;
 
-        static void applyPickup() {
-
-            // while collision occurs
-            // if(player health = 9)
-            // player health = player health + 1
-            // elseif(player health = 8)
-            // player health = player health + 2
-            // elseif(player health <= 7 && health < max health && health > 0)
-            // player health = player health + 3
-
-        }
-
         static void potionsInit() {
 
             for (int i = 0; i <= POTION_COUNT; i++){
@@ -926,8 +910,14 @@ public class CubeQuest {
             }
         }
 
-        static void collisionPlayerandPickup() {
+        static int collisionPlayerandPickup() {
 
+            float dist = (float) sqrt((p.x - player.x)*(p.x - player. x)+(p.z - player.z)*(p.z - player.z));
+            if(dist < 1.0f){
+                player.health = 100;
+                return 1;
+            }
+            return 0;
         }
 
         static void potionRespawn() {
@@ -1770,6 +1760,7 @@ public class CubeQuest {
         // TODO: add necessary collision checks and behaviors.
 
         collisionShotsAndEnemies();
+        p.collisionPlayerandPickup();
 
     }
 
@@ -1837,7 +1828,6 @@ public class CubeQuest {
 
             // TODO: plot all game elements
 
-
             worldPlotFloor(0);
             worldPlotFloor(elevation);
             worldPlotFloor2(0);
@@ -1846,12 +1836,22 @@ public class CubeQuest {
             worldPlotFloor3(elevation3);
             playerPlotShots();
             enemiesPlot();
+
+            float height = (float) Math.sin(((System.currentTimeMillis()) % (1000 * 4)) * (2 * PI) / 1000 / 4);
+
+            glPushMatrix();{
+            glTranslatef(0.0f, 1.0f + height, 0.0f);
             p.plotPotion();
+            glPopMatrix();}
+            if(p.collisionPlayerandPickup() == 1){
+                //p.x = -100.0f;
+                //p.z = -100.0f;
+                p.potionsInit();
+            }
 
             glPushMatrix();{
             glScalef(0.2f,0.2f,0.2f);
             plotTreasureChest();
-            float height = (float) Math.sin(((System.currentTimeMillis())%(1000*4)) * (2*PI) / 1000 / 4);
             glTranslatef(0.0f,2.0f+height,0.0f);
             plotSword();
             glPopMatrix();
