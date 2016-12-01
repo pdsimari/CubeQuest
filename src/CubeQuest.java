@@ -49,7 +49,7 @@ public class CubeQuest {
     /**
      * Player speed (distance per second).
      */
-    static float PLAYER_SPEED = 10.0f;
+    static final float PLAYER_SPEED = 10.0f;
 
     /**
      * Player's shot speed (distance per second).
@@ -339,9 +339,6 @@ public class CubeQuest {
 
         float health = 70;
         float maxHealth = 100;
-        float Stamina=100;
-        float maxStamina=100;
-
 
         boolean isAlive() {
             return health > 0;
@@ -631,8 +628,6 @@ public class CubeQuest {
         // health remaining
         float health;
 
-        //stamina remaining
-        float stamina;
     }
 
     /**
@@ -1698,11 +1693,6 @@ public class CubeQuest {
             player.dz += +1.0f;
             //player.facing = Direction.SOUTH;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
-            PLAYER_SPEED = 25.0f;
-        }else if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
-            PLAYER_SPEED=10.0f;
-        }
 
         // space bar
         if (Mouse.isButtonDown(0)) {
@@ -1736,8 +1726,6 @@ public class CubeQuest {
         // TODO: Add other game input handling.
 
     }
-
-
 
     private static void toggleFullscreen() {
         try {
@@ -1905,8 +1893,6 @@ public class CubeQuest {
         // Make everything in density independent screen coordinates.
         float width = Display.getWidth();
         float height = Display.getHeight();
-
-
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -1917,8 +1903,6 @@ public class CubeQuest {
             glLoadIdentity();
             glTranslatef(-1.0f,-1.0f,-1.0f);
             glScalef(1/(width/2.0f),1/(height/2.0f),1.0f);
-
-
 
             // No shading required for UI elements.
             glDisable(GL_LIGHTING);
@@ -1942,7 +1926,6 @@ public class CubeQuest {
             glEnd();*/
 
             renderHealth(width, height);
-            renderStamina(width, height);
         }
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
@@ -1967,33 +1950,6 @@ public class CubeQuest {
             glVertex2d(0.0f,maxBarHeight);
 
             glColor3f(1.0f,0.0f,0.0f);
-            glVertex2d(0.0f,0.0f);
-            glVertex2d(barWidth,0.0f);
-            glVertex2d(barWidth,barHeight);
-            glVertex2d(0.0f,barHeight);
-        }
-        glEnd();
-        glPopMatrix();
-    }
-    private static void renderStamina(float width, float height) {
-
-        float margin = 150.0f;
-        float maxBarHeight = 200;
-        float barWidth = 50;
-
-        float barHeight = maxBarHeight * player.Stamina / player.maxStamina;
-        glPushMatrix();
-        glTranslatef(margin-25, margin-100, 0.0f);
-
-        glBegin(GL_QUADS);
-        {
-            glColor3f(0.5f,0.5f,0.5f);
-            glVertex2d(0.0f,barHeight);
-            glVertex2d(barWidth,barHeight);
-            glVertex2d(barWidth,maxBarHeight);
-            glVertex2d(0.0f,maxBarHeight);
-
-            glColor3f(0.0f,0.0f,1.0f);
             glVertex2d(0.0f,0.0f);
             glVertex2d(barWidth,0.0f);
             glVertex2d(barWidth,barHeight);
