@@ -903,6 +903,183 @@ public class CubeQuest {
         e.health = ENEMY_MAX_HEALTH;
 
     }
+    // =========================================================================
+    // SPARKS
+    // =========================================================================
+
+    /**
+     * Maximum number of sparks.
+     */
+    static final int SPARK_COUNT = 100;
+
+    /**
+     * Size of the enemies.
+     */
+    static final float SPARK_SIZE = 0.1f;
+
+    /**
+     * Enemy speed in distance per second.
+     */
+    static final float SPARK_SPEED = 0.001f;
+
+    /**
+     * Time it takes for enemy to spawn in seconds.
+     */
+    static final float SPARK_SPAWN_TIME = 1.0f;
+
+    /**
+     * Spark life time
+     */
+    static final float SPARK_LIFE_TIME = 25.0f;
+
+    /**
+     * Enemty structure.
+     */
+    static class Spark {
+
+        // position in the zx plane
+        float x;
+        float z;
+
+        // direction of movement (+/- 1)
+        float dx;
+        float dz;
+
+        // age (in seconds)
+        float t;
+
+    }
+
+    /**
+     * All sparks.
+     */
+    static final Spark[] sparks = new Spark[SPARK_COUNT];
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * Initialize enemy locations.
+     */
+    static void sparkInit() {
+
+        // for each enemy
+        for (int i = 0; i < SPARK_COUNT; i++) {
+
+            // place it in a random world location
+            sparks[i] = new Spark();
+            sparkSpawn(sparks[i]);
+
+        }
+
+    }
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * Update sparks based on dt, the time transpired in seconds since the
+     * last update.
+     *
+     * @param dt a float
+     */
+    static void sparkUpdate(float dt) {
+        int turn = 0;
+        int steps = 0;
+
+        // for each spark...
+        for (int i = 0; i < SPARK_COUNT; i++) {
+
+            Spark s = sparks[i];
+
+            // update t
+            s.t += dt;
+
+            if (turn == 0) {
+                s.dx  = 0;
+                s.dz -= 1;
+            } else if (turn == 1) {
+                s.dx  = 0;
+                s.dz += 1;
+            } else if (turn == 2) {
+                s.dx += 1;
+                s.dz  = 0;
+            } else if (turn ==3) {
+                s.dx -= 1;
+                s.dz  = 0;
+            }
+
+
+            // update location
+            s.x += s.dx * SPARK_SPEED * s.t;
+            s.z += s.dz * SPARK_SPEED * s.t;
+            steps += 1;
+
+
+            if ( steps % 3 == 0 ) {
+                turn = ((int) random(0, 3));
+            }
+
+
+            if (steps >= SPARK_LIFE_TIME) {
+                sparkSpawn(s);
+                steps = 0;
+            }
+
+        }
+
+    }
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * Plot the current state of the sparks.
+     */
+    static void sparkPlot() {
+
+        // for each spark...
+        for (int i = 0; i < SPARK_COUNT; i++) {
+
+            // consider current enemy
+            Spark s = sparks[i];
+
+            glPushMatrix();
+            {
+
+                // color is yellow
+                glColor3f(1.0f, 1.0f, 0.0f);
+
+                // plot cube at spark location
+                glTranslatef(s.x, -0.10f, s.z);
+                glPushMatrix();
+                {
+                    glScalef(SPARK_SIZE, SPARK_SIZE, SPARK_SIZE);
+                    glTranslatef(0.0f, 1.0f, 0.0f);
+                    plotSolidCube();
+                }
+                glPopMatrix();
+
+            }
+            glPopMatrix();
+
+        }
+
+    }
+
+
+
+    /**
+     * Spawn spark s to new location.
+     * along the grid
+     * @param s A spark.
+     */
+    static void sparkSpawn(Spark s) {
+
+        s.x =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+        s.x += 0.5f;
+        s.z =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+        s.z += 0.5f;
+        s.t = 0.0f;
+
+    }
     //==========================================================================
     // TERRAIN
     //==========================================================================
@@ -1758,6 +1935,8 @@ public class CubeQuest {
         p.potionsInit();
         terrainArray();
         TerrainInit();
+        sparkInit();
+
 
     }
 
@@ -1891,6 +2070,7 @@ public class CubeQuest {
 
         player.update(dt);
         enemiesUpdate(dt);
+        sparkUpdate(dt);
 
     }
 
@@ -2010,6 +2190,7 @@ public class CubeQuest {
                 glPopMatrix();
             }
             terrainPlot();
+            sparkPlot();
         }
         glPopMatrix();
 
