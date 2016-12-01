@@ -920,7 +920,7 @@ public class CubeQuest {
     /**
      * Enemy speed in distance per second.
      */
-    static final float SPARK_SPEED = 0.001f;
+    static final float SPARK_SPEED = 1f;
 
     /**
      * Time it takes for enemy to spawn in seconds.
@@ -937,16 +937,105 @@ public class CubeQuest {
      */
     static class Spark {
 
+        float speed = SPARK_SPEED;
+        float lifetime = SPARK_LIFE_TIME;
+        float gridOffset = 0.5f;
+        float gridSeparation = 1.0f;
+
+        // direction of spark
+        Direction direction;
         // position in the zx plane
         float x;
         float z;
-
-        // direction of movement (+/- 1)
-        float dx;
-        float dz;
-
         // age (in seconds)
         float t;
+
+        private enum Direction {
+            NORTH, // Z+
+            SOUTH, // Z-
+            EAST, // X-
+            WEST} // X+
+
+        // initialize self
+        public Spark() {
+            init();
+        }
+
+        /**
+          * Init position and direction
+          */
+        public void init() {
+            x =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+            x += gridOffset;
+            z =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+            z += gridOffset;
+            t = 0.0f;
+            changeDirection();
+        }
+
+        public void changeDirection() {
+            switch ((int) random(0, 4)) {
+                case 0:
+                    direction = Direction.NORTH;
+                    break;
+
+                case 1:
+                    direction = Direction.SOUTH;
+                    break;
+
+                case 2:
+                    direction = Direction.WEST;
+                    break;
+
+                case 3:
+                    direction = Direction.EAST;
+                    break;
+
+            }
+        }
+
+
+        public void update(float dt) {
+            float lz;
+            float lx;
+            switch (direction) {
+                case NORTH:
+                    lz = z;
+                    z += dt * speed;
+                    if ((int)(z - gridOffset) != (int)(lz - gridOffset)) {
+                        z = (int)(z) + 0.5f;
+                        changeDirection();
+                    }
+                    break;
+
+                case SOUTH:
+                    lz = z;
+                    z -= dt * speed;
+                    if ((int)(z - gridOffset) != (int)(lz - gridOffset)) {
+                        z = (int)(z) + 0.5f;
+                        changeDirection();
+                    }
+                    break;
+
+                case WEST:
+                    lx = x;
+                    x += dt * speed;
+                    if ((int)(x - gridOffset) != (int)(lx - gridOffset)) {
+                        x = (int)(x) + 0.5f;
+                        changeDirection();
+                    }
+                    break;
+
+                case EAST:
+                    lx = x;
+                    x -= dt * speed;
+                    if ((int)(x - gridOffset) != (int)(lx - gridOffset)) {
+                        x = (int)(x) + 0.5f;
+                        changeDirection();
+                    }
+                    break;
+            }
+        }
 
     }
 
@@ -961,15 +1050,9 @@ public class CubeQuest {
      * Initialize enemy locations.
      */
     static void sparkInit() {
-
-        // for each enemy
-        for (int i = 0; i < SPARK_COUNT; i++) {
-
-            // place it in a random world location
-            sparks[i] = new Spark();
-            sparkSpawn(sparks[i]);
-
-        }
+    for (int i = 0; i < SPARK_COUNT; i++) {
+        sparks[i] = new Spark();
+    }
 
     }
 
@@ -982,48 +1065,8 @@ public class CubeQuest {
      * @param dt a float
      */
     static void sparkUpdate(float dt) {
-        int turn = 0;
-        int steps = 0;
-
-        // for each spark...
-        for (int i = 0; i < SPARK_COUNT; i++) {
-
-            Spark s = sparks[i];
-
-            // update t
-            s.t += dt;
-
-            if (turn == 0) {
-                s.dx  = 0;
-                s.dz -= 1;
-            } else if (turn == 1) {
-                s.dx  = 0;
-                s.dz += 1;
-            } else if (turn == 2) {
-                s.dx += 1;
-                s.dz  = 0;
-            } else if (turn ==3) {
-                s.dx -= 1;
-                s.dz  = 0;
-            }
-
-
-            // update location
-            s.x += s.dx * SPARK_SPEED * s.t;
-            s.z += s.dz * SPARK_SPEED * s.t;
-            steps += 1;
-
-
-            if ( steps % 3 == 0 ) {
-                turn = ((int) random(0, 3));
-            }
-
-
-            if (steps >= SPARK_LIFE_TIME) {
-                sparkSpawn(s);
-                steps = 0;
-            }
-
+        for (Spark s : sparks) {
+            s.update(dt);
         }
 
     }
@@ -1065,21 +1108,6 @@ public class CubeQuest {
     }
 
 
-
-    /**
-     * Spawn spark s to new location.
-     * along the grid
-     * @param s A spark.
-     */
-    static void sparkSpawn(Spark s) {
-
-        s.x =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
-        s.x += 0.5f;
-        s.z =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
-        s.z += 0.5f;
-        s.t = 0.0f;
-
-    }
     //==========================================================================
     // TERRAIN
     //==========================================================================
