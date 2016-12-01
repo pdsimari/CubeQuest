@@ -591,7 +591,7 @@ public class CubeQuest {
     /**
      * Maximum number of enemies.
      */
-    static final int ENEMY_COUNT = 100;
+    static final int ENEMY_COUNT = 30;
 
     /**
      * Size of the enemies.
@@ -1088,7 +1088,7 @@ public class CubeQuest {
     /**
      * Maximum number of Terrain instances.
      */
-    static final int   TERRAIN_COUNT = 10;
+    static final int   TERRAIN_COUNT = 1000;
 
 
     /**
@@ -1236,7 +1236,7 @@ public class CubeQuest {
 
     }
 
-    static void worldPlotFloor2(float elevation2) {
+    static void worldPlotCeiling(float elevation2) {
 
 
         float lower = (float) floor(-camera.farPlane) - 0.5f;
@@ -1256,33 +1256,6 @@ public class CubeQuest {
                 for (float z = lower; z <= upper; z += 1.0f) {
                     glVertex3f(-camera.farPlane, elevation2, z);
                     glVertex3f(+camera.farPlane, elevation2, z);
-                }
-            }
-            glEnd();
-        }
-        glEnable(GL_LIGHTING);
-
-    }
-    static void worldPlotFloor3(float elevation3) {
-
-
-        float lower = (float) floor(-camera.farPlane) - 0.5f;
-        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
-
-        glDisable(GL_LIGHTING);
-        {
-            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
-            glLineWidth(0.2f);
-            glBegin(GL_LINES);
-            {
-                glNormal3f(0.0f, 1.0f, 0.0f);
-                for (float x = lower; x <= upper; x += 1.0f) {
-                    glVertex3f(x, elevation3, -camera.farPlane);
-                    glVertex3f(x, elevation3, +camera.farPlane);
-                }
-                for (float z = lower; z <= upper; z += 1.0f) {
-                    glVertex3f(-camera.farPlane, elevation3, z);
-                    glVertex3f(+camera.farPlane, elevation3, z);
                 }
             }
             glEnd();
@@ -2179,10 +2152,6 @@ public class CubeQuest {
 
             worldPlotFloor(0);
             worldPlotFloor(elevation);
-            worldPlotFloor2(0);
-            worldPlotFloor2(elevation2);
-            worldPlotFloor3(0);
-            worldPlotFloor3(elevation3);
             playerPlotShots();
             enemiesPlot();
 
@@ -2190,32 +2159,46 @@ public class CubeQuest {
             float height = (float) Math.sin(((System.currentTimeMillis()) % (1000 * 4)) * (2 * PI) / 1000 / 4);
 
             //Plot health regen Potion move along the y axis
-            glPushMatrix();{
-            glTranslatef(0.0f, 1.0f + height, 0.0f);
-            p.plotPotion();
-            glPopMatrix();}
+            glPushMatrix();
+            {
+                glTranslatef(0.0f, 1.0f + height, 0.0f);
+                p.plotPotion();
+                glPopMatrix();
+            }
 
             //Respawn the Potion in a different place on the surface once picked up by the player
-            if(p.collisionPlayerandPickup() == 1){
+            if (p.collisionPlayerandPickup() == 1) {
                 p.potionsInit();
             }
-
-            glPushMatrix();{
-            glScalef(0.5f,0.5f,0.5f);
-
-            //Plot a Treasure Chest on a surface
-            //item.plotTreasureChest();
-            //Plot a Sword inside the Treasure Chest and make it move following the sin wave according to the y axis
-            glTranslatef(0.0f,2.0f+height,0.0f);
-            //item.plotSword();
-            glPopMatrix();
+            glPushMatrix();//elevator
+            {
+                glColor3f(0.0f, 1.0f, 0.0f);
+                glScalef(3.0f, 0.0f, 3.0f);
+                plotUnitPolygon(128);
             }
+            glPopMatrix();
+        
+            glPushMatrix();
+            {
+                glScalef(0.5f, 0.5f, 0.5f);
 
+                //Plot a Treasure Chest on a surface
+                //item.plotTreasureChest();
+                //Plot a Sword inside the Treasure Chest and make it move following the sin wave according to the y axis
+                glTranslatef(0.0f, 2.0f + height, 0.0f);
+                //item.plotSword();
+                glPopMatrix();
+            }
             terrainPlot();
             sparkPlot();
         }
         glPopMatrix();
+
+
     }
+
+
+
 
     static void updateOpenGLProjectionMatrix() {
 
@@ -2384,9 +2367,7 @@ public class CubeQuest {
     }
 
     // -------------------------------------------------------------------------
-    static float elevation = random (10, 20);
-    static float elevation2= random  (20,30);
-    static float elevation3= random (30,40);
+    static float elevation = random (10, 15);
     //--------------------------------------------------------------------------
 
     /**
