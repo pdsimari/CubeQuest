@@ -489,7 +489,7 @@ public class CubeQuest {
     /**
      * Enemy speed in distance per second.
      */
-    static final float SPARK_SPEED = 0.01f;
+    static final float SPARK_SPEED = 0.001f;
 
     /**
      * Time it takes for enemy to spawn in seconds.
@@ -560,7 +560,7 @@ public class CubeQuest {
             Spark s = sparks[i];
 
             // update t
-            s.t += 0.1;
+            s.t += dt;
 
             if (turn == 0) {
                 s.dx  = 0;
@@ -575,11 +575,12 @@ public class CubeQuest {
                 s.dx -= 1;
                 s.dz  = 0;
             }
-            steps += 1;
+
 
             // update location
-            s.x += s.dx * SPARK_SPEED * -dt;
-            s.z += s.dz * SPARK_SPEED * -dt;
+            s.x += s.dx * SPARK_SPEED * s.t;
+            s.z += s.dz * SPARK_SPEED * s.t;
+            steps += 1;
 
 
             if ( steps % 2 == 0 ) {
@@ -1403,26 +1404,21 @@ public class CubeQuest {
 
             worldPlotFloor();
             playerPlotShots();
-            enemiesPlot();
-            plotTreasureChest();
+            //enemiesPlot();
+            //plotTreasureChest();
             glPushMatrix();{
             float height = (float) Math.sin(System.currentTimeMillis()/200);
             glTranslatef(0.0f,2.0f+height,0.0f);
-            plotSword();
+            //plotSword();
             glPopMatrix();
             }
-            terrainPlot();
-<<<<<<< HEAD
-<<<<<<< HEAD
-            sparkPlot();
+            //terrainPlot();
 
-=======
->>>>>>> refs/remotes/origin/master
-=======
             sparkPlot();
 
 
->>>>>>> origin/Cyberspace
+
+
         }
         glPopMatrix();
 
