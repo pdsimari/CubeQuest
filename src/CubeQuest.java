@@ -499,7 +499,7 @@ public class CubeQuest {
     /**
      * Spark life time
      */
-    static final float SPARK_LIFE_TIME = 10.0f;
+    static final float SPARK_LIFE_TIME = 1.0f;
 
     /**
      * Enemty structure.
@@ -552,6 +552,7 @@ public class CubeQuest {
      */
     static void sparkUpdate(float dt) {
         int turn = 2;
+        float steps = 0;
 
         // for each spark...
         for (int i = 0; i < SPARK_COUNT; i++) {
@@ -563,25 +564,25 @@ public class CubeQuest {
 
 
 
-                for (int j = 0; j < SPARK_LIFE_TIME; j++){
+                if (s.t< SPARK_LIFE_TIME){
 
                     // determine direction of movement
-                    if ( j%5 == 0) {
+                    if ( steps%5 == 0) {
                         turn = (int) random(1,3);
                     }
 
                     //update location
                     if (turn == 1){
-                        s.dz += -0.01f;
+                        s.dz -= 1;
                     } else if (turn == 3) {
-                        s.dz += 0.01f;
+                        s.dz += 1;
                     } else {
-                        s.dx +=0.01f;
+                        s.dx +=1;
                     }
 
                 }
-                s.x = s.dx;
-                s.z = s.dz;
+                s.x = s.dx *SPARK_SPEED;
+                s.z = s.dz*SPARK_SPEED;
 
 
              if (s.t > SPARK_LIFE_TIME) {
@@ -609,8 +610,8 @@ public class CubeQuest {
             {
 
 
-                // color is green
-                glColor3f(0.0f, 1.0f, 0.0f);
+                // color is yellow
+                glColor3f(1.0f, 1.0f, 0.0f);
 
                 // plot cube at spark location
                 glTranslatef(s.x, 0.0f, s.z);
@@ -638,8 +639,8 @@ public class CubeQuest {
      */
     static void sparkSpawn(Spark s) {
 
-        s.x = (int) random(-WORLD_RADIUS, +WORLD_RADIUS);
-        s.z = (int) random(-WORLD_RADIUS, +WORLD_RADIUS);
+        s.x = random(-WORLD_RADIUS, +WORLD_RADIUS);
+        s.z = random(-WORLD_RADIUS, +WORLD_RADIUS);
         s.t = 0.0f;
 
     }
