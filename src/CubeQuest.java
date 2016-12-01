@@ -342,7 +342,6 @@ public class CubeQuest {
         float Stamina=100;
         float maxStamina=100;
 
-
         boolean isAlive() {
             return health > 0;
         }
@@ -631,10 +630,9 @@ public class CubeQuest {
         // health remaining
         float health;
 
-        //stamina remaining
-        float stamina;
     }
-
+    //stamina remaining
+    float stamina;
     /**
      * All enemies.
      */
@@ -1703,7 +1701,6 @@ public class CubeQuest {
         }else if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
             PLAYER_SPEED=10.0f;
         }
-
         // space bar
         if (Mouse.isButtonDown(0)) {
             playerShoot();
@@ -1736,8 +1733,6 @@ public class CubeQuest {
         // TODO: Add other game input handling.
 
     }
-
-
 
     private static void toggleFullscreen() {
         try {
@@ -1905,8 +1900,6 @@ public class CubeQuest {
         // Make everything in density independent screen coordinates.
         float width = Display.getWidth();
         float height = Display.getHeight();
-
-
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -1917,8 +1910,6 @@ public class CubeQuest {
             glLoadIdentity();
             glTranslatef(-1.0f,-1.0f,-1.0f);
             glScalef(1/(width/2.0f),1/(height/2.0f),1.0f);
-
-
 
             // No shading required for UI elements.
             glDisable(GL_LIGHTING);
@@ -1975,7 +1966,8 @@ public class CubeQuest {
         glEnd();
         glPopMatrix();
     }
-    private static void renderStamina(float width, float height) { //the stamina bar needs additional coding to decrease as the player sprints
+
+    private static void renderStamina(float width, float height) {
 
         float margin = 150.0f;
         float maxBarHeight = 200;
