@@ -1850,7 +1850,7 @@ public class CubeQuest {
             glPopMatrix();
 
             }
-            //terrainPlot();
+            terrainPlot();
         }
         glPopMatrix();
     }
