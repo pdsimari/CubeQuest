@@ -1975,7 +1975,7 @@ public class CubeQuest {
         glEnd();
         glPopMatrix();
     }
-    private static void renderStamina(float width, float height) {
+    private static void renderStamina(float width, float height) { //the stamina bar needs additional coding to decrease as the player sprints
 
         float margin = 150.0f;
         float maxBarHeight = 200;
