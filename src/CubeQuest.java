@@ -6,6 +6,7 @@ import org.lwjgl.opengl.Display;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -713,43 +714,45 @@ public class CubeQuest {
     }
 
     private static void plotFeet(float cx, float cy, float cz, float r, float h, int gltype){
+        int n = 4;
         glPushMatrix();
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,0.0f,2*r);
-            plotUHemisphere(128,gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,h,2*r);
-            plotUHemisphere(128, gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(-cx,cy,cz);
             glScalef(r,0.0f,2*r);
-            plotUHemisphere(128, gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(-cx,cy,cz);
             glScalef(r,h,2*r);
-            plotUHemisphere(128, gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
     }
 
     private static void plotEggShape(float cx, float cy, float cz, float r, float h,float deg, int gltype){
+        int n = 10;
         glPushMatrix();
         {
             glRotatef(deg,0.0f,0.0f,1.0f);
             glTranslatef(cx,cy,cz);
             glScalef(r,-3.0f*h,r);
-            plotUHemisphere(128,gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
         glPushMatrix();
@@ -757,25 +760,26 @@ public class CubeQuest {
             glRotatef(deg,0.0f,0.0f,1.0f);
             glTranslatef(cx,cy,cz);
             glScalef(r,h,r);
-            plotUHemisphere(128,gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
 
     }
 
     private static void plotUnitShape(float cx, float cy, float cz, float r, float h, int gltype){
+        int n = 8;
         glPushMatrix();
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,h,r);
-            plotUHemisphere(128, gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,-h,r);
-            plotUHemisphere(128, gltype);
+            plotUnitHemisphere(n);
         }
         glPopMatrix();
 
@@ -803,74 +807,6 @@ public class CubeQuest {
         plotEggShape(-cx, cy, cz, r, h, -315.0f, gltype);
     }
 
-    private static void plotUHemisphere(int n,int choice) {
-
-        // p->q will represent the current edge we are on
-        float[] p = new float[3];
-        float[] q = new float[3];
-
-        float theta, phi;
-
-        // north pole cap
-        glBegin(GL_TRIANGLES);
-        {
-            phi = TURN/4 - TURN/n;
-            setSpherical(0.0f,  phi, 1.0f, q);
-            for (int i = 1; i <= n; i++) {
-
-                // set up edge
-                theta = (TURN*i)/n;
-                set(q, p);
-                setSpherical(theta, phi, 1.0f, q);
-
-                // plot triangle
-                glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
-                glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
-                glNormal3f(0.0f, 1.0f, 0.0f); glVertex3f(0.0f, 1.0f, 0.0f);
-
-            }
-
-        }
-        glEnd();
-
-        if (choice == GL_POINTS)
-            glPointSize(2.5f);
-        if (choice == GL_LINES)
-            glLineWidth(0.5f);
-        // middle bands
-        glBegin(choice);
-        {
-
-            float[] r = new float[3];
-            float[] s = new float[3];
-            for (int i = 2; i <= (n/4); i++) {
-                for (int j = 0; j < n; j++) {
-
-                    // update theta phi
-                    phi = TURN/4 - (TURN*i)/n;
-                    theta = (TURN*j)/n;
-
-                    // set point locations
-                    setSpherical(theta,          phi,          1.0f, p);
-                    setSpherical(theta + TURN/n, phi,          1.0f, q);
-                    setSpherical(theta + TURN/n, phi + TURN/n, 1.0f, r);
-                    setSpherical(theta,          phi + TURN/n, 1.0f, s);
-
-                    // plot quad
-                    glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
-                    glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
-                    glNormal3f(r[0], r[1], r[2]); glVertex3f(r[0], r[1], r[2]);
-                    glNormal3f(s[0], s[1], s[2]); glVertex3f(s[0], s[1], s[2]);
-
-                }
-
-            }
-
-        }
-        glEnd();
-
-    }
-
 
     // -----------------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------------
@@ -881,6 +817,7 @@ public class CubeQuest {
      */
     static void enemiesPlot() {
 
+        glShadeModel(GL_SMOOTH);
         // for each enemy...
         for (int i = 0; i < ENEMY_COUNT; i++) {
 
@@ -974,7 +911,7 @@ public class CubeQuest {
     /**
      * Maximum number of Terrain instances.
      */
-    static final int   TERRAIN_COUNT = 1000;
+    static final int   TERRAIN_COUNT = 10;
 
 
     /**
@@ -989,6 +926,14 @@ public class CubeQuest {
         // size
         float Width;
         float Height;
+
+    }
+
+    static void terrainArray() {
+        float[][] arrayMap;
+        int x = (int) WORLD_RADIUS;
+        arrayMap = new float[x][x];
+        System.out.println(Arrays.deepToString(arrayMap));
 
     }
 
@@ -1607,6 +1552,29 @@ public class CubeQuest {
                 }
 
             }
+            // Equator
+            for (int j = 0; j < n; j++) {
+                int i = (n/4);
+
+                // update theta phi
+                phi = TURN/4 - (TURN*i)/n;
+                theta = (TURN*j)/n;
+
+                // set point locations
+                setSpherical(theta,          phi,          1.0f, p);
+                setSpherical(theta + TURN/n, phi,          1.0f, q);
+                setSpherical(theta + TURN/n, 0,            1.0f, r);
+                setSpherical(theta,          0,            1.0f, s);
+
+                // plot quad
+                glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
+                glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
+                glNormal3f(r[0], r[1], r[2]); glVertex3f(r[0], r[1], r[2]);
+                glNormal3f(s[0], s[1], s[2]); glVertex3f(s[0], s[1], s[2]);
+
+            }
+
+
 
         }
         glEnd();
@@ -1815,6 +1783,7 @@ public class CubeQuest {
         playerInit();
         enemiesInit();
         p.potionsInit();
+        terrainArray();
         TerrainInit();
 
     }
@@ -1826,6 +1795,8 @@ public class CubeQuest {
      * true.
      */
     static void gameRun() {
+
+
 
         long last = System.currentTimeMillis();
         long current = last;
@@ -2053,10 +2024,10 @@ public class CubeQuest {
             glScalef(0.5f,0.5f,0.5f);
 
             //Plot a Treasure Chest on a surface
-            item.plotTreasureChest();
+            //item.plotTreasureChest();
             //Plot a Sword inside the Treasure Chest and make it move following the sin wave according to the y axis
             glTranslatef(0.0f,2.0f+height,0.0f);
-            item.plotSword();
+            //item.plotSword();
             glPopMatrix();
             }
 
