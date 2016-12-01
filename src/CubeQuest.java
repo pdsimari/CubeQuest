@@ -879,19 +879,132 @@ public class CubeQuest {
         c.x = random(-WORLD_RADIUS, +WORLD_RADIUS);
         c.z = random(-WORLD_RADIUS, +WORLD_RADIUS);
     }
+
     // =========================================================================
-    // ITEMS
+    // WORLD
     // =========================================================================
 
+    /**
+     * Bounds of the world where enemies can spawn.
+     */
+    static final float WORLD_RADIUS = 100.0f;
+
+    /**
+     * Scale factor used for rendering.
+     */
+    static float WORLD_SCALE = 0.25f;
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * Plot a grid on the ZX plane.
+     */
+
+    static void worldPlotFloor(float elevation) {
+
+
+        float lower = (float) floor(-camera.farPlane) - 0.5f;
+        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
+
+        glDisable(GL_LIGHTING);
+        {
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
+            glLineWidth(0.2f);
+            glBegin(GL_LINES);
+            {
+                glNormal3f(0.0f, 1.0f, 0.0f);
+                for (float x = lower; x <= upper; x += 1.0f) {
+                    glVertex3f(x, elevation, -camera.farPlane);
+                    glVertex3f(x, elevation, +camera.farPlane);
+                }
+                for (float z = lower; z <= upper; z += 1.0f) {
+                    glVertex3f(-camera.farPlane, elevation, z);
+                    glVertex3f(+camera.farPlane, elevation, z);
+                }
+            }
+            glEnd();
+        }
+        glEnable(GL_LIGHTING);
+
+    }
+
+    static void worldPlotFloor2(float elevation2) {
+
+
+        float lower = (float) floor(-camera.farPlane) - 0.5f;
+        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
+
+        glDisable(GL_LIGHTING);
+        {
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
+            glLineWidth(0.2f);
+            glBegin(GL_LINES);
+            {
+                glNormal3f(0.0f, 1.0f, 0.0f);
+                for (float x = lower; x <= upper; x += 1.0f) {
+                    glVertex3f(x, elevation2, -camera.farPlane);
+                    glVertex3f(x, elevation2, +camera.farPlane);
+                }
+                for (float z = lower; z <= upper; z += 1.0f) {
+                    glVertex3f(-camera.farPlane, elevation2, z);
+                    glVertex3f(+camera.farPlane, elevation2, z);
+                }
+            }
+            glEnd();
+        }
+        glEnable(GL_LIGHTING);
+
+    }
+    static void worldPlotFloor3(float elevation3) {
+
+
+        float lower = (float) floor(-camera.farPlane) - 0.5f;
+        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
+
+        glDisable(GL_LIGHTING);
+        {
+            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
+            glLineWidth(0.2f);
+            glBegin(GL_LINES);
+            {
+                glNormal3f(0.0f, 1.0f, 0.0f);
+                for (float x = lower; x <= upper; x += 1.0f) {
+                    glVertex3f(x, elevation3, -camera.farPlane);
+                    glVertex3f(x, elevation3, +camera.farPlane);
+                }
+                for (float z = lower; z <= upper; z += 1.0f) {
+                    glVertex3f(-camera.farPlane, elevation3, z);
+                    glVertex3f(+camera.farPlane, elevation3, z);
+                }
+            }
+            glEnd();
+        }
+        glEnable(GL_LIGHTING);
+
+    }
+    // -------------------------------------------------------------------------
+    /**
+     * PowerUp structure
+     */
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+    Initialize function and variables
+     */
+    private static void set(float[] src, float[] dest) { System.arraycopy(src, 0, dest, 0, src.length); }
     // size of the potion
     static final float ITEM_SIZE = 0.15f;
     // potion spawn time (in seconds)
     static final float ITEM_SPAWN_TIME = 1.0f;
 
-    /**
-     * Potion structure
-     */
-    static class Potion {
+    static final Potion p = new Potion();
+    static final Item item = new Item();
+// -----------------------------------------------------------------------------------------------------------------
+
+    // =========================================================================
+    // ITEMS
+    // =========================================================================
+
+    private static class Potion {
 
         // number of potions allowed on the map.
         static final int POTION_COUNT = 1;
@@ -904,14 +1017,12 @@ public class CubeQuest {
         float time;
 
         static void potionsInit() {
-
             for (int i = 0; i <= POTION_COUNT; i++){
                 potionRespawn();
             }
         }
 
         static int collisionPlayerandPickup() {
-
             float dist = (float) sqrt((p.x - player.x)*(p.x - player. x)+(p.z - player.z)*(p.z - player.z));
             if(dist < 1.0f){
                 player.health = 100;
@@ -921,14 +1032,12 @@ public class CubeQuest {
         }
 
         static void potionRespawn() {
-
             p.x = random(-WORLD_RADIUS, WORLD_RADIUS);
             p.z = random(-WORLD_RADIUS, WORLD_RADIUS);
             p.time = -ITEM_SPAWN_TIME;
         }
 
         static void plotPotion() {
-
             for (int i = 0; i <= POTION_COUNT; i++) {
 
                 glPushMatrix();
@@ -986,12 +1095,181 @@ public class CubeQuest {
         }
     }
 
-    // The potion object
-    static final Potion p = new Potion();
+    // -----------------------------------------------------------------------------------------------------------------
+    private static class Item {
+        private static void plotTreasureChest() {
+
+            float x = (float) 2.5;
+            float y = (float) 3.0;
+            float z = (float) 2.5;
+            float h = (float) 2.5;
+
+            glColor3f(1.0f, 1.0f, 1.0f);
+
+            // plot base
+            glPushMatrix();
+            {
+                glTranslatef(0.0f, 0.5f, 0.0f);
+                glScalef(0.5f, 0.5f, 0.5f);
+                glScalef(6.0f, 0.5f, 6.0f);
+                plotUnitCube();
+            }
+            glPopMatrix();
+
+            //Draw the front
+            plotCylinder(x, y, z, h, 0.3f);
+            plotCylinder(x / 2, y, z, h, 0.3f);
+            plotCylinder(0, y, z, h, 0.3f);
+            plotCylinder(-x / 2, y, z, h, 0.3f);
+            plotCylinder(-x, y, z, h, 0.3f);
+
+            //Draw the middle
+            plotCylinder(x, y, 0.0f, h, 0.3f);
+
+            plotCylinder(x, y, z / 2, h, 0.3f);
+
+            plotCylinder(x, y, -z / 2, h, 0.3f);
+
+            plotCylinder(-x, y, 0.0f, h, 0.3f);
+
+            plotCylinder(-x, y, z / 2, h, 0.3f);
+
+            plotCylinder(-x, y, -z / 2, h, 0.3f);
+
+            //Draw the back
+            plotCylinder(x, y, -z, h, 0.3f);
+            plotCylinder(x / 2, y, -z, h, 0.3f);
+            plotCylinder(0, y, -z, h, 0.3f);
+            plotCylinder(-x / 2, y, -z, h, 0.3f);
+            plotCylinder(-x, y, -z, h, 0.3f);
+
+            //Draw the roof
+            glPushMatrix();
+            {
+                glTranslatef(0.0f, y + 2.5f, 0.0f);
+                glScalef(0.5f, 0.5f, 0.5f);
+                glScalef(6.0f, 0.5f, 6.0f);
+                plotUnitCube();
+            }
+            glPopMatrix();
+
+        }
+
+        // -----------------------------------------------------------------------------------------------------------------
+        private static void plotSword() {
+
+            glColor3f(0.0f, 0.0f, 0.0f);
+
+            // plot base
+            glPushMatrix();
+            {
+                glTranslatef(0.0f, 1.0f, 0.0f);
+                glScalef(0.5f, 0.5f, 0.5f);
+                glScalef(0.5f, 3.5f, 0.3f);
+                plotUnitCube();
+            }
+            glPopMatrix();
+
+            glPushMatrix();
+            {
+                glTranslatef(0.0f, 0.5f, 0.0f);
+                glScalef(0.5f, 0.5f, 0.5f);
+                glScalef(2.0f, 0.5f, 0.3f);
+                plotUnitCube();
+            }
+            glPopMatrix();
+
+            glPushMatrix();
+            {
+                glTranslatef(0.75f, 0.9f, 0.0f);
+                glScalef(0.5f, 0.5f, 0.5f);
+                glScalef(0.5f, 1.0f, 0.3f);
+                plotUnitCube();
+            }
+            glPopMatrix();
+
+            glPushMatrix();
+            {
+                glTranslatef(-0.75f, 0.9f, 0.0f);
+                glScalef(0.5f, 0.5f, 0.5f);
+                glScalef(0.5f, 1.0f, 0.3f);
+                plotUnitCube();
+            }
+            glPopMatrix();
+        }
+    }
     // =========================================================================
     // SHAPE MODELS
     // =========================================================================
 
+    private static void plotCylinder(float cx, float cy, float cz, float h, float r) {
+
+        // plot cone 1
+        glPushMatrix();
+        {
+            glTranslatef(cx, cy, cz);
+            glScalef(r, h, r);
+            plotUnitCylinder(16);
+        }
+        glPopMatrix();
+
+    }
+   // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Render a unit cube.
+     */
+    private static void plotUnitCube() {
+
+        // drawing quads (squares)
+        glBegin(GL_QUADS);
+
+        // front x face
+        glNormal3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);
+
+        // back x face
+        glNormal3f(-1.0f, 0.0f, 0.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);
+
+        // front y face
+        glNormal3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);
+
+        // back y face
+        glNormal3f(0.0f, -1.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);
+
+        // front z face
+        glNormal3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);
+
+        // back z face
+        glNormal3f(0.0f, 0.0f, -1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);
+
+        glEnd();
+
+    }
+    // -----------------------------------------------------------------------------------------------------------------
     /**
      * Plot a cone of height and radius 1 made up of n triangular faces.
      *
@@ -1157,290 +1435,6 @@ public class CubeQuest {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    // =========================================================================
-    // WORLD
-    // =========================================================================
-
-    /**
-     * Bounds of the world where enemies can spawn.
-     */
-    static final float WORLD_RADIUS = 100.0f;
-
-    /**
-     * Scale factor used for rendering.
-     */
-    static float WORLD_SCALE = 0.25f;
-
-    // -------------------------------------------------------------------------
-
-    /**
-     * Plot a grid on the ZX plane.
-     */
-
-    static void worldPlotFloor(float elevation) {
-
-
-        float lower = (float) floor(-camera.farPlane) - 0.5f;
-        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
-
-        glDisable(GL_LIGHTING);
-        {
-            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
-            glLineWidth(0.2f);
-            glBegin(GL_LINES);
-            {
-                glNormal3f(0.0f, 1.0f, 0.0f);
-                for (float x = lower; x <= upper; x += 1.0f) {
-                    glVertex3f(x, elevation, -camera.farPlane);
-                    glVertex3f(x, elevation, +camera.farPlane);
-                }
-                for (float z = lower; z <= upper; z += 1.0f) {
-                    glVertex3f(-camera.farPlane, elevation, z);
-                    glVertex3f(+camera.farPlane, elevation, z);
-                }
-            }
-            glEnd();
-        }
-        glEnable(GL_LIGHTING);
-
-    }
-
-    static void worldPlotFloor2(float elevation2) {
-
-
-        float lower = (float) floor(-camera.farPlane) - 0.5f;
-        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
-
-        glDisable(GL_LIGHTING);
-        {
-            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
-            glLineWidth(0.2f);
-            glBegin(GL_LINES);
-            {
-                glNormal3f(0.0f, 1.0f, 0.0f);
-                for (float x = lower; x <= upper; x += 1.0f) {
-                    glVertex3f(x, elevation2, -camera.farPlane);
-                    glVertex3f(x, elevation2, +camera.farPlane);
-                }
-                for (float z = lower; z <= upper; z += 1.0f) {
-                    glVertex3f(-camera.farPlane, elevation2, z);
-                    glVertex3f(+camera.farPlane, elevation2, z);
-                }
-            }
-            glEnd();
-        }
-        glEnable(GL_LIGHTING);
-
-    }
-    static void worldPlotFloor3(float elevation3) {
-
-
-        float lower = (float) floor(-camera.farPlane) - 0.5f;
-        float upper = (float)  ceil(+camera.farPlane) + 0.5f;
-
-        glDisable(GL_LIGHTING);
-        {
-            glColor4f(0.0f, 0.9f, 0.0f, 0.75f);
-            glLineWidth(0.2f);
-            glBegin(GL_LINES);
-            {
-                glNormal3f(0.0f, 1.0f, 0.0f);
-                for (float x = lower; x <= upper; x += 1.0f) {
-                    glVertex3f(x, elevation3, -camera.farPlane);
-                    glVertex3f(x, elevation3, +camera.farPlane);
-                }
-                for (float z = lower; z <= upper; z += 1.0f) {
-                    glVertex3f(-camera.farPlane, elevation3, z);
-                    glVertex3f(+camera.farPlane, elevation3, z);
-                }
-            }
-            glEnd();
-        }
-        glEnable(GL_LIGHTING);
-
-    }
-    // -------------------------------------------------------------------------
-    // Power Up
-    // -----------------------------------------------------------------------------------------------------------------
-
-    /**
-    Initialize function and variables
-     */
-    private static void set(float[] src, float[] dest) { System.arraycopy(src, 0, dest, 0, src.length); }
-
-    /**
-     * PowerUp structure
-     */
-// -----------------------------------------------------------------------------------------------------------------
-    private static void plotTreasureChest() {
-
-        float x= (float) 2.5;
-        float y= (float) 3.0;
-        float z= (float) 2.5;
-        float h= (float) 2.5;
-
-        glColor3f(1.0f, 1.0f, 1.0f);
-
-        // plot base
-        glPushMatrix();
-        {
-            glTranslatef(0.0f, 0.5f, 0.0f);
-            glScalef(0.5f, 0.5f, 0.5f);
-            glScalef(6.0f, 0.5f, 6.0f);
-            plotUnitCube();
-        }
-        glPopMatrix();
-
-        //Draw the front
-        plotCylinder(x,y,z,h,0.3f);   //cx cy cz
-        plotCylinder(x/2,y,z,h,0.3f);
-        plotCylinder(0,y,z,h,0.3f);
-        plotCylinder(-x/2,y,z,h,0.3f);
-        plotCylinder(-x,y,z,h,0.3f);
-
-        //Draw the middle
-        plotCylinder(x,y,0.0f,h,0.3f);
-
-        plotCylinder(x,y,z/2,h,0.3f);
-
-        plotCylinder(x,y,-z/2,h,0.3f);
-
-        plotCylinder(-x,y,0.0f,h,0.3f);
-
-        plotCylinder(-x,y,z/2,h,0.3f);
-
-        plotCylinder(-x,y,-z/2,h,0.3f);
-
-        //Draw the back
-        plotCylinder(x,y,-z,h,0.3f);
-        plotCylinder(x/2,y,-z,h,0.3f);
-        plotCylinder(0,y,-z,h,0.3f);
-        plotCylinder(-x/2,y,-z,h,0.3f);
-        plotCylinder(-x,y,-z,h,0.3f);
-
-        //Draw the roof
-        glPushMatrix();
-        {
-            glTranslatef(0.0f, y+2.5f, 0.0f);
-            glScalef(0.5f, 0.5f, 0.5f);
-            glScalef(6.0f, 0.5f, 6.0f);
-            plotUnitCube();
-        }
-        glPopMatrix();
-
-    }
-
-// -----------------------------------------------------------------------------------------------------------------
-    private static void plotSword() {
-
-        glColor3f(0.0f, 0.0f, 0.0f);
-
-        // plot base
-        glPushMatrix();
-        {
-            glTranslatef(0.0f, 1.0f, 0.0f);
-            glScalef(0.5f, 0.5f, 0.5f);
-            glScalef(0.5f, 3.5f, 0.3f);
-            plotUnitCube();
-        }
-        glPopMatrix();
-
-        glPushMatrix();
-        {
-            glTranslatef(0.0f, 0.5f, 0.0f);
-            glScalef(0.5f, 0.5f, 0.5f);
-            glScalef(2.0f, 0.5f, 0.3f);
-            plotUnitCube();
-        }
-        glPopMatrix();
-
-        glPushMatrix();
-        {
-            glTranslatef(0.75f, 0.9f, 0.0f);
-            glScalef(0.5f, 0.5f, 0.5f);
-            glScalef(0.5f, 1.0f, 0.3f);
-            plotUnitCube();
-        }
-        glPopMatrix();
-
-        glPushMatrix();
-        {
-            glTranslatef(-0.75f, 0.9f, 0.0f);
-            glScalef(0.5f, 0.5f, 0.5f);
-            glScalef(0.5f, 1.0f, 0.3f);
-            plotUnitCube();
-        }
-        glPopMatrix();
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    private static void plotCylinder(float cx, float cy, float cz, float h, float r) {
-
-        // plot cone 1
-        glPushMatrix();
-        {
-            glTranslatef(cx, cy, cz);
-            glScalef(r, h, r);
-            plotUnitCylinder(16);
-        }
-        glPopMatrix();
-
-    }
-    // -----------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Render a unit cube.
-     */
-    private static void plotUnitCube() {
-
-        // drawing quads (squares)
-        glBegin(GL_QUADS);
-
-        // front x face
-        glNormal3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(1.0f, -1.0f, -1.0f);
-        glVertex3f(1.0f, 1.0f, -1.0f);
-        glVertex3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(1.0f, -1.0f, 1.0f);
-
-        // back x face
-        glNormal3f(-1.0f, 0.0f, 0.0f);
-        glVertex3f(-1.0f, 1.0f, 1.0f);
-        glVertex3f(-1.0f, -1.0f, 1.0f);
-        glVertex3f(-1.0f, -1.0f, -1.0f);
-        glVertex3f(-1.0f, 1.0f, -1.0f);
-
-        // front y face
-        glNormal3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(-1.0f, 1.0f, -1.0f);
-        glVertex3f(1.0f, 1.0f, -1.0f);
-        glVertex3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(-1.0f, 1.0f, 1.0f);
-
-        // back y face
-        glNormal3f(0.0f, -1.0f, 0.0f);
-        glVertex3f(1.0f, -1.0f, 1.0f);
-        glVertex3f(-1.0f, -1.0f, 1.0f);
-        glVertex3f(-1.0f, -1.0f, -1.0f);
-        glVertex3f(1.0f, -1.0f, -1.0f);
-
-        // front z face
-        glNormal3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(-1.0f, -1.0f, 1.0f);
-        glVertex3f(1.0f, -1.0f, 1.0f);
-        glVertex3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(-1.0f, 1.0f, 1.0f);
-
-        // back z face
-        glNormal3f(0.0f, 0.0f, -1.0f);
-        glVertex3f(1.0f, 1.0f, -1.0f);
-        glVertex3f(-1.0f, 1.0f, -1.0f);
-        glVertex3f(-1.0f, -1.0f, -1.0f);
-        glVertex3f(1.0f, -1.0f, -1.0f);
-
-        glEnd();
-
-    }
 
     // =========================================================================
     // CAMERA
@@ -1843,20 +1837,20 @@ public class CubeQuest {
             glTranslatef(0.0f, 1.0f + height, 0.0f);
             p.plotPotion();
             glPopMatrix();}
+
             if(p.collisionPlayerandPickup() == 1){
-                //p.x = -100.0f;
-                //p.z = -100.0f;
                 p.potionsInit();
             }
 
             glPushMatrix();{
-            glScalef(0.2f,0.2f,0.2f);
-            plotTreasureChest();
+            glScalef(0.5f,0.5f,0.5f);
+            item.plotTreasureChest();
             glTranslatef(0.0f,2.0f+height,0.0f);
-            plotSword();
+            item.plotSword();
             glPopMatrix();
+
             }
-            terrainPlot();
+            //terrainPlot();
         }
         glPopMatrix();
     }
