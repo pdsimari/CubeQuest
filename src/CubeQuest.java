@@ -489,7 +489,7 @@ public class CubeQuest {
     /**
      * Enemy speed in distance per second.
      */
-    static final float SPARK_SPEED = 0.1f;
+    static final float SPARK_SPEED = 0.01f;
 
     /**
      * Time it takes for enemy to spawn in seconds.
@@ -499,7 +499,7 @@ public class CubeQuest {
     /**
      * Spark life time
      */
-    static final float SPARK_LIFE_TIME = 10.0f;
+    static final float SPARK_LIFE_TIME = 25.0f;
 
     /**
      * Enemty structure.
@@ -545,13 +545,14 @@ public class CubeQuest {
     // -------------------------------------------------------------------------
 
     /**
-     * Update enemies based on dt, the time transpired in seconds since the
-     * last enemty update.
+     * Update sparks based on dt, the time transpired in seconds since the
+     * last update.
      *
-     * @param dt A float.
+     * @param dt a float
      */
     static void sparkUpdate(float dt) {
-        int turn = 2;
+        int turn = 0;
+        int steps = 0;
 
         // for each spark...
         for (int i = 0; i < SPARK_COUNT; i++) {
@@ -559,32 +560,34 @@ public class CubeQuest {
             Spark s = sparks[i];
 
             // update t
-            s.t += dt;
+            s.t += 0.1;
+
+            if (turn == 0) {
+                s.dx  = 0;
+                s.dz -= 1;
+            } else if (turn == 1) {
+                s.dx  = 0;
+                s.dz += 1;
+            } else if (turn == 2) {
+                s.dx += 1;
+                s.dz  = 0;
+            } else if (turn ==3) {
+                s.dx -= 1;
+                s.dz  = 0;
+            }
+            steps += 1;
+
+            // update location
+            s.x += s.dx * SPARK_SPEED * -dt;
+            s.z += s.dz * SPARK_SPEED * -dt;
 
 
-
-                for (int j = 0; j < SPARK_LIFE_TIME; j++){
-
-                    // determine direction of movement
-                    if ( j%5 == 0) {
-                        turn = (int) random(1,3);
-                    }
-
-                    //update location
-                    if (turn == 1){
-                        s.dz += -0.01f;
-                    } else if (turn == 3) {
-                        s.dz += 0.01f;
-                    } else {
-                        s.dx +=0.01f;
-                    }
-
-                }
-                s.x = s.dx;
-                s.z = s.dz;
+            if ( steps % 2 == 0 ) {
+                turn = ((int) random(0, 3));
+            }
 
 
-             if (s.t > SPARK_LIFE_TIME) {
+            if (steps >= SPARK_LIFE_TIME) {
                 sparkSpawn(s);
             }
 
@@ -608,12 +611,11 @@ public class CubeQuest {
             glPushMatrix();
             {
 
-
-                // color is green
-                glColor3f(0.0f, 1.0f, 0.0f);
+                // color is yellow
+                glColor3f(1.0f, 1.0f, 0.0f);
 
                 // plot cube at spark location
-                glTranslatef(s.x, 0.0f, s.z);
+                glTranslatef(s.x, -0.10f, s.z);
                 glPushMatrix();
                 {
                     glScalef(SPARK_SIZE, SPARK_SIZE, SPARK_SIZE);
@@ -638,8 +640,10 @@ public class CubeQuest {
      */
     static void sparkSpawn(Spark s) {
 
-        s.x = (int) random(-WORLD_RADIUS, +WORLD_RADIUS);
-        s.z = (int) random(-WORLD_RADIUS, +WORLD_RADIUS);
+        s.x =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+            s.x += 0.5f;
+        s.z =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+            s.z += 0.5f;
         s.t = 0.0f;
 
     }
@@ -1409,10 +1413,16 @@ public class CubeQuest {
             }
             terrainPlot();
 <<<<<<< HEAD
+<<<<<<< HEAD
             sparkPlot();
 
 =======
 >>>>>>> refs/remotes/origin/master
+=======
+            sparkPlot();
+
+
+>>>>>>> origin/Cyberspace
         }
         glPopMatrix();
 
