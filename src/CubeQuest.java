@@ -991,8 +991,10 @@ public class CubeQuest {
     Initialize function and variables
      */
     private static void set(float[] src, float[] dest) { System.arraycopy(src, 0, dest, 0, src.length); }
+
     // size of the potion
     static final float ITEM_SIZE = 0.15f;
+
     // potion spawn time (in seconds)
     static final float ITEM_SPAWN_TIME = 1.0f;
 
@@ -1016,6 +1018,7 @@ public class CubeQuest {
         // age (in seconds)
         float time;
 
+        //Respawn a potion
         static void potionsInit() {
             for (int i = 0; i <= POTION_COUNT; i++){
                 potionRespawn();
@@ -1023,7 +1026,10 @@ public class CubeQuest {
         }
 
         static int collisionPlayerandPickup() {
+            //Calculate the distance between the Player and the Potion
             float dist = (float) sqrt((p.x - player.x)*(p.x - player. x)+(p.z - player.z)*(p.z - player.z));
+
+            //If the distance < 1.0f then the player health regen to 100. Then the potion disappears and respawns on another place
             if(dist < 1.0f){
                 player.health = 100;
                 return 1;
@@ -1031,15 +1037,16 @@ public class CubeQuest {
             return 0;
         }
 
+        //Random a place for Potion to respawn
         static void potionRespawn() {
             p.x = random(-WORLD_RADIUS, WORLD_RADIUS);
             p.z = random(-WORLD_RADIUS, WORLD_RADIUS);
             p.time = -ITEM_SPAWN_TIME;
         }
 
+        //Plot Potion
         static void plotPotion() {
             for (int i = 0; i <= POTION_COUNT; i++) {
-
                 glPushMatrix();
                 {
                     glTranslatef(p.x, 0.0f, p.z);
@@ -1097,16 +1104,20 @@ public class CubeQuest {
 
     // -----------------------------------------------------------------------------------------------------------------
     private static class Item {
+
+        //Plot the Treasure Chest
         private static void plotTreasureChest() {
 
+            //Set the x,y,z,h position for the Treasure
             float x = (float) 2.5;
             float y = (float) 3.0;
             float z = (float) 2.5;
             float h = (float) 2.5;
 
+            //Set the white color
             glColor3f(1.0f, 1.0f, 1.0f);
 
-            // plot base
+            //Plot base
             glPushMatrix();
             {
                 glTranslatef(0.0f, 0.5f, 0.0f);
@@ -1157,10 +1168,10 @@ public class CubeQuest {
 
         // -----------------------------------------------------------------------------------------------------------------
         private static void plotSword() {
-
+            //Set the black color
             glColor3f(0.0f, 0.0f, 0.0f);
 
-            // plot base
+            //Plot the body of the Sword along the y axis
             glPushMatrix();
             {
                 glTranslatef(0.0f, 1.0f, 0.0f);
@@ -1170,6 +1181,7 @@ public class CubeQuest {
             }
             glPopMatrix();
 
+            //plot the middle of the Sword along the x and z axis
             glPushMatrix();
             {
                 glTranslatef(0.0f, 0.5f, 0.0f);
@@ -1179,6 +1191,7 @@ public class CubeQuest {
             }
             glPopMatrix();
 
+            //Plot the right of the Sword
             glPushMatrix();
             {
                 glTranslatef(0.75f, 0.9f, 0.0f);
@@ -1188,6 +1201,7 @@ public class CubeQuest {
             }
             glPopMatrix();
 
+            //Plot the left of the Sword
             glPushMatrix();
             {
                 glTranslatef(-0.75f, 0.9f, 0.0f);
@@ -1202,9 +1216,12 @@ public class CubeQuest {
     // SHAPE MODELS
     // =========================================================================
 
+    /**
+     * Render a Cylinder.
+     */
     private static void plotCylinder(float cx, float cy, float cz, float h, float r) {
 
-        // plot cone 1
+        // Plot the Cylinder
         glPushMatrix();
         {
             glTranslatef(cx, cy, cz);
@@ -1217,7 +1234,7 @@ public class CubeQuest {
    // -----------------------------------------------------------------------------------------------------------------
 
     /**
-     * Render a unit cube.
+     * Render a Unit cube.
      */
     private static void plotUnitCube() {
 
@@ -1272,8 +1289,6 @@ public class CubeQuest {
     // -----------------------------------------------------------------------------------------------------------------
     /**
      * Plot a cone of height and radius 1 made up of n triangular faces.
-     *
-     * @param n An int.
      */
     private static void plotUnitCone(int n) {
 
@@ -1314,8 +1329,6 @@ public class CubeQuest {
 
     /**
      * Plot an uncapped unit cylinder with n sides. The extrema of the cylinder will be at Y = +/- 1.
-     *
-     * @param n An int.
      */
     private static void plotUnitCylinder(int n) {
 
@@ -1818,8 +1831,6 @@ public class CubeQuest {
             glScalef(WORLD_SCALE, WORLD_SCALE, WORLD_SCALE);
             playerPlotAvatar();
 
-
-
             // TODO: plot all game elements
 
             worldPlotFloor(0);
@@ -1831,25 +1842,31 @@ public class CubeQuest {
             playerPlotShots();
             enemiesPlot();
 
+            //Design a movement of items according to a sin wave
             float height = (float) Math.sin(((System.currentTimeMillis()) % (1000 * 4)) * (2 * PI) / 1000 / 4);
 
+            //Plot health regen Potion move along the y axis
             glPushMatrix();{
             glTranslatef(0.0f, 1.0f + height, 0.0f);
             p.plotPotion();
             glPopMatrix();}
 
+            //Respawn the Potion in a different place on the surface once picked up by the player
             if(p.collisionPlayerandPickup() == 1){
                 p.potionsInit();
             }
 
             glPushMatrix();{
             glScalef(0.5f,0.5f,0.5f);
+
+            //Plot a Treasure Chest on a surface
             item.plotTreasureChest();
+            //Plot a Sword inside the Treasure Chest and make it move following the sin wave according to the y axis
             glTranslatef(0.0f,2.0f+height,0.0f);
             item.plotSword();
             glPopMatrix();
-
             }
+
             terrainPlot();
         }
         glPopMatrix();
