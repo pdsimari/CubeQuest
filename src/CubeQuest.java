@@ -583,7 +583,7 @@ public class CubeQuest {
             steps += 1;
 
 
-            if ( steps % 2 == 0 ) {
+            if ( steps % 3 == 0 ) {
                 turn = ((int) random(0, 3));
             }
 
