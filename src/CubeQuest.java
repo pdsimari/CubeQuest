@@ -693,7 +693,188 @@ public class CubeQuest {
 
     }
 
-    // -------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+    // ENEMIES' MODEL---------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+
+    private static void plotEnemy(int gltype) {
+        //plot foots
+        plotFeet(0.825f, 0.0f, 0.5f, 0.5f, 0.325f, gltype);
+        //plot legs
+        plotLegs(0.825f, 3.0f, 0.0f, 0.5f,   1.0f, gltype);
+        //plot body
+        plotBody(  0.0f, 4.0f, 0.0f, 1.5f,   1.0f, gltype);
+        //plot head
+        plotHead(  0.0f,5.25f, 0.5f,0.75f,   0.5f, gltype);
+        //Plot arms
+        plotArms( -3.90f,1.45f, 0.0f, 0.25f,  0.75f, gltype);
+        //Plot eyes
+        plotEyes(  0.25f,5.25f, 1.125f, 0.15f);
+    }
+
+    private static void plotFeet(float cx, float cy, float cz, float r, float h, int gltype){
+        glPushMatrix();
+        {
+            glTranslatef(cx,cy,cz);
+            glScalef(r,0.0f,2*r);
+            plotUHemisphere(128,gltype);
+        }
+        glPopMatrix();
+        glPushMatrix();
+        {
+            glTranslatef(cx,cy,cz);
+            glScalef(r,h,2*r);
+            plotUHemisphere(128, gltype);
+        }
+        glPopMatrix();
+        glPushMatrix();
+        {
+            glTranslatef(-cx,cy,cz);
+            glScalef(r,0.0f,2*r);
+            plotUHemisphere(128, gltype);
+        }
+        glPopMatrix();
+        glPushMatrix();
+        {
+            glTranslatef(-cx,cy,cz);
+            glScalef(r,h,2*r);
+            plotUHemisphere(128, gltype);
+        }
+        glPopMatrix();
+    }
+
+    private static void plotEggShape(float cx, float cy, float cz, float r, float h,float deg, int gltype){
+        glPushMatrix();
+        {
+            glRotatef(deg,0.0f,0.0f,1.0f);
+            glTranslatef(cx,cy,cz);
+            glScalef(r,-3.0f*h,r);
+            plotUHemisphere(128,gltype);
+        }
+        glPopMatrix();
+        glPushMatrix();
+        {
+            glRotatef(deg,0.0f,0.0f,1.0f);
+            glTranslatef(cx,cy,cz);
+            glScalef(r,h,r);
+            plotUHemisphere(128,gltype);
+        }
+        glPopMatrix();
+
+    }
+
+    private static void plotUnitShape(float cx, float cy, float cz, float r, float h, int gltype){
+        glPushMatrix();
+        {
+            glTranslatef(cx,cy,cz);
+            glScalef(r,h,r);
+            plotUHemisphere(128, gltype);
+        }
+        glPopMatrix();
+        glPushMatrix();
+        {
+            glTranslatef(cx,cy,cz);
+            glScalef(r,-h,r);
+            plotUHemisphere(128, gltype);
+        }
+        glPopMatrix();
+
+    }
+    private static void plotHead(float cx, float cy, float cz, float r, float h, int gltype){
+        plotUnitShape( cx, cy, cz, r, h, gltype);
+    }
+    private static void plotEyes(float cx,float cy, float cz,float r) {
+        glColor3f(1.0f,0.0f,0.0f);
+        plotUnitShape( cx, cy, cz, r, r, GL_QUADS);
+        plotUnitShape(-cx, cy, cz, r, r, GL_QUADS);
+    }
+    private static void plotBody(float cx,float cy, float cz,float r, float h, int gltype) {
+        plotEggShape( cx, cy, cz, r, h, 0.0f, gltype);
+    }
+
+    private static void plotLegs(float cx,float cy, float cz,float r, float h, int gltype) {
+        plotEggShape( cx, cy, cz, r, h, 0.0f, gltype);
+        plotEggShape(-cx, cy, cz, r, h, 0.0f, gltype);
+    }
+
+
+    private static void plotArms(float cx, float cy, float cz, float r, float h, int gltype){
+        plotEggShape( cx, cy, cz, r, h, 315.0f, gltype);
+        plotEggShape(-cx, cy, cz, r, h, -315.0f, gltype);
+    }
+
+    private static void plotUHemisphere(int n,int choice) {
+
+        // p->q will represent the current edge we are on
+        float[] p = new float[3];
+        float[] q = new float[3];
+
+        float theta, phi;
+
+        // north pole cap
+        glBegin(GL_TRIANGLES);
+        {
+            phi = TURN/4 - TURN/n;
+            setSpherical(0.0f,  phi, 1.0f, q);
+            for (int i = 1; i <= n; i++) {
+
+                // set up edge
+                theta = (TURN*i)/n;
+                set(q, p);
+                setSpherical(theta, phi, 1.0f, q);
+
+                // plot triangle
+                glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
+                glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
+                glNormal3f(0.0f, 1.0f, 0.0f); glVertex3f(0.0f, 1.0f, 0.0f);
+
+            }
+
+        }
+        glEnd();
+
+        if (choice == GL_POINTS)
+            glPointSize(2.5f);
+        if (choice == GL_LINES)
+            glLineWidth(0.5f);
+        // middle bands
+        glBegin(choice);
+        {
+
+            float[] r = new float[3];
+            float[] s = new float[3];
+            for (int i = 2; i <= (n/4); i++) {
+                for (int j = 0; j < n; j++) {
+
+                    // update theta phi
+                    phi = TURN/4 - (TURN*i)/n;
+                    theta = (TURN*j)/n;
+
+                    // set point locations
+                    setSpherical(theta,          phi,          1.0f, p);
+                    setSpherical(theta + TURN/n, phi,          1.0f, q);
+                    setSpherical(theta + TURN/n, phi + TURN/n, 1.0f, r);
+                    setSpherical(theta,          phi + TURN/n, 1.0f, s);
+
+                    // plot quad
+                    glNormal3f(p[0], p[1], p[2]); glVertex3f(p[0], p[1], p[2]);
+                    glNormal3f(q[0], q[1], q[2]); glVertex3f(q[0], q[1], q[2]);
+                    glNormal3f(r[0], r[1], r[2]); glVertex3f(r[0], r[1], r[2]);
+                    glNormal3f(s[0], s[1], s[2]); glVertex3f(s[0], s[1], s[2]);
+
+                }
+
+            }
+
+        }
+        glEnd();
+
+    }
+
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+
 
     /**
      * Plot the current state of the enemies.
@@ -711,8 +892,8 @@ public class CubeQuest {
 
                 // if enemy is spawning...
                 if (e.t < 0) {
-                    // color is blue
-                    glColor3f(0.0f, 0.0f, 1.0f);
+                    // color is gray
+                    glColor3f(0.5f, 0.5f, 0.5f);
                 }
                 else {
                     // color is green
@@ -726,14 +907,14 @@ public class CubeQuest {
                 {
                     glScalef(ENEMY_SIZE, h, ENEMY_SIZE);
                     glTranslatef(0.0f, 1.0f, 0.0f);
-                    plotSolidCube();
+                    plotEnemy(GL_QUADS);
                 }
                 glPopMatrix();
                 glPushMatrix();
                 {
                     glScalef(ENEMY_SIZE, ENEMY_SIZE, ENEMY_SIZE);
                     glTranslatef(0.0f, 1.0f, 0.0f);
-                    plotWireFrameCube();
+                    plotEnemy(GL_LINES);
                 }
                 glPopMatrix();
 
