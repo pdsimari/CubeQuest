@@ -590,6 +590,7 @@ public class CubeQuest {
 
             if (steps >= SPARK_LIFE_TIME) {
                 sparkSpawn(s);
+                steps = 0;
             }
 
         }
