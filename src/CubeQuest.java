@@ -545,8 +545,8 @@ public class CubeQuest {
     // -------------------------------------------------------------------------
 
     /**
-     * Update enemies based on dt, the time transpired in seconds since the
-     * last enemty update.
+     * Update sparks based on dt, the time transpired in seconds since the
+     * last update.
      *
      * @param dt a float
      */
