@@ -1,3 +1,4 @@
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
@@ -5,12 +6,20 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
-import java.awt.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import org.lwjgl.*;
 import org.lwjgl.util.vector.Vector2f;
@@ -21,6 +30,7 @@ import static java.lang.Math.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
+
 
 /**
  * CSC 322: Introduction to Computer Graphics, Fall 2016
@@ -1035,16 +1045,16 @@ public class CubeQuest {
         glEnable(GL_POLYGON_SMOOTH);
 
         // fog
-        glEnable(GL_FOG);
-        glFog(GL_FOG_COLOR, floatBuffer(1.0f, 1.0f, 1.0f, 1.0f));
-        glFogi(GL_FOG_MODE, GL_EXP2);
-        glFogf(GL_FOG_DENSITY, 0.01f);
+         glEnable(GL_FOG);
+         glFog(GL_FOG_COLOR, floatBuffer(1.0f, 1.0f, 1.0f, 0.0f));
+         glFogi(GL_FOG_MODE, GL_EXP2);
+         glFogf(GL_FOG_DENSITY, 0.01f);
 
         // TODO: initialize game elements
 
-        playerInit();
-        enemiesInit();
-        TerrainInit();
+          playerInit();
+          enemiesInit();
+          TerrainInit();
 
     }
 
@@ -1209,6 +1219,7 @@ public class CubeQuest {
         // clear the screen and depth buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         // viewing transformation (bottom of the model-view stack)
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
@@ -1221,20 +1232,19 @@ public class CubeQuest {
             playerPlotAvatar();
 
 
-
             // TODO: plot all game elements
 
-            worldPlotFloor();
-            playerPlotShots();
-            enemiesPlot();
-            plotTreasureChest();
-            glPushMatrix();{
-            float height = (float) Math.sin(System.currentTimeMillis()/200);
-            glTranslatef(0.0f,2.0f+height,0.0f);
-            plotSword();
-            glPopMatrix();
+             worldPlotFloor();
+             playerPlotShots();
+             enemiesPlot();
+             plotTreasureChest();
+             glPushMatrix();{
+             float height = (float) Math.sin(System.currentTimeMillis()/200);
+             glTranslatef(0.0f,2.0f+height,0.0f);
+             plotSword();
+             glPopMatrix();
             }
-            terrainPlot();
+           terrainPlot();
         }
         glPopMatrix();
 
