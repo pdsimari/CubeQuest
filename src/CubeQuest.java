@@ -396,28 +396,28 @@ public class CubeQuest {
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,0.0f,2*r);
-            plotUHemisphere(128,gltype);
+            plotUHemisphere(20,gltype);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,h,2*r);
-            plotUHemisphere(128, gltype);
+            plotUHemisphere(20, gltype);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(-cx,cy,cz);
             glScalef(r,0.0f,2*r);
-            plotUHemisphere(128, gltype);
+            plotUHemisphere(20, gltype);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(-cx,cy,cz);
             glScalef(r,h,2*r);
-            plotUHemisphere(128, gltype);
+            plotUHemisphere(20, gltype);
         }
         glPopMatrix();
     }
@@ -428,7 +428,7 @@ public class CubeQuest {
             glRotatef(deg,0.0f,0.0f,1.0f);
             glTranslatef(cx,cy,cz);
             glScalef(r,-3.0f*h,r);
-            plotUHemisphere(128,gltype);
+            plotUHemisphere(20,gltype);
         }
         glPopMatrix();
         glPushMatrix();
@@ -436,7 +436,7 @@ public class CubeQuest {
             glRotatef(deg,0.0f,0.0f,1.0f);
             glTranslatef(cx,cy,cz);
             glScalef(r,h,r);
-            plotUHemisphere(128,gltype);
+            plotUHemisphere(20,gltype);
         }
         glPopMatrix();
 
@@ -447,14 +447,14 @@ public class CubeQuest {
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,h,r);
-            plotUHemisphere(128, gltype);
+            plotUHemisphere(20, gltype);
         }
         glPopMatrix();
         glPushMatrix();
         {
             glTranslatef(cx,cy,cz);
             glScalef(r,-h,r);
-            plotUHemisphere(128, gltype);
+            plotUHemisphere(20, gltype);
         }
         glPopMatrix();
 
@@ -586,14 +586,16 @@ public class CubeQuest {
                 {
                     glScalef(ENEMY_SIZE, h, ENEMY_SIZE);
                     glTranslatef(0.0f, 1.0f, 0.0f);
-                    plotEnemy(GL_QUADS);
+                    //plotEnemy(GL_QUADS);
+                    plotSolidCube();
                 }
                 glPopMatrix();
                 glPushMatrix();
                 {
                     glScalef(ENEMY_SIZE, ENEMY_SIZE, ENEMY_SIZE);
                     glTranslatef(0.0f, 1.0f, 0.0f);
-                    plotEnemy(GL_LINES);
+                    //plotEnemy(GL_LINES);
+                    plotWireFrameCube();
                 }
                 glPopMatrix();
 
