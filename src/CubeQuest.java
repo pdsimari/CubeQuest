@@ -50,7 +50,7 @@ public class CubeQuest {
 	/**
 	 * Player speed (distance per second).
 	 */
-	static float PLAYER_SPEED = 10.0f;
+	static float PLAYER_SPEED = 100f;
 
 	/**
 	 * Player's shot speed (distance per second).
@@ -375,6 +375,8 @@ public class CubeQuest {
 		float dx = 0.0f;
 		float dz = 0.0f;
 
+		float radius = 1.0f;
+
 		// facing direction
 		Direction facing = Direction.SOUTH;
 
@@ -408,15 +410,76 @@ public class CubeQuest {
 		void update(float dt) {
 
 			// update player position
+			for (int i = 0; i < ENEMY_COUNT; i++) {
+				if (col.checkCollisionPlayer(player, enemies[i]) == true) {
 
-			x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
-			z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+					x -= -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+					z -= -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
 
-			x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
-			z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+					x -= dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+					z -= dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+				}
+				else {
+					x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+					z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+					x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+					z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+				}
 
 
-			t += dt;
+				t += dt;
+			}
+
+
+			for(int j = 0; j < TERRAIN_COUNT; j++){
+				if (col.checkCollisionPlayerTerrain(player, columns) && (col.checkCollisionPlayerTerrainHeight(player, columns) == false)) {
+
+					x -= 1.0f;
+					z -= 1.0f;
+					gravity = 0.0f;
+					airTime = 0.0f;
+
+					jumping = doubleJumping = false;
+
+					System.out.println("COLLISION");
+				}
+				else{
+					x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+					z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+					x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+					z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+
+					gravity = -20.0f;
+
+					System.out.println("NO COLLISION");
+				}
+
+				if (col.checkCollisionPlayerTerrainHeight(player, columns))
+				{
+					gravity = 0.0f;
+					airTime = 0.0f;
+
+					x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+					z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+					x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+					z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+				}
+
+				else {
+					gravity = -20.f;
+					airTime += dt;
+					y = jumpStartHeight + jumpInitialSpeed*airTime + gravity*airTime*airTime/2.0f;
+
+					if (y <= 0) { // if below ground
+						jumping = doubleJumping = false;
+						y = 0;
+					}
+
+				}
+			}
 
 
 			// update player shots (if active)
@@ -449,6 +512,64 @@ public class CubeQuest {
 
 	}
 
+	static class Collision {
+
+		public boolean checkCollisionPlayer(Player p, Enemy e) {
+			//check radius of player to radius of enemies
+			//if player.x + enemy.x < player.r + enemy.r && p.z + e.z < p.r + e.r
+			//collision
+			boolean collision = false;
+			for (int i = 0; i < ENEMY_COUNT; i++) {
+				if ((abs(p.x - e.x) < 2) && abs(p.z - e.z) < 2) {
+					collision = true;
+				}
+				else{
+					collision = false;
+				}
+			}
+			return collision;
+		}
+
+		public boolean checkCollisionPlayerTerrain(Player p, Terrain[] t){
+			boolean collision = false;
+			for (int i = 0; i < TERRAIN_COUNT; i++) {
+				if ((abs(p.x - t[i].x) < t[i].Width * 2) && (abs(p.z - t[i].z) < t[i].Width * 2 )) {
+					collision = true;
+				}
+				else{
+					collision = false;
+				}
+			}
+			return collision;
+		}
+
+		public boolean checkCollisionPlayerTerrainHeight(Player p, Terrain[] t){
+			boolean collision = false;
+			for (int i = 0; i < TERRAIN_COUNT; i++) {
+				if ((p.y > t[i].Height * 2) && checkCollisionPlayerTerrain(p, t)) {
+					collision = true;
+				} else {
+					collision = false;
+				}
+			}
+			return collision;
+		}
+
+		public boolean checkCollisionEnemies(Enemy[] a, Enemy[] b) {
+			boolean collision = false;
+			for (int i = 0; i < ENEMY_COUNT; i++) {
+				if ((abs(a[i].x - b[i].x) < 2) && abs(a[i].z - b[i].z) < 2) {
+					collision = true;
+				}
+				else{
+					collision = false;
+				}
+			}
+			return collision;
+
+		}
+	}
+	final static Collision col = new Collision();
 	/**
 	 * Player shot structure.
 	 */
@@ -498,7 +619,7 @@ public class CubeQuest {
 		// plot player avatar
 		glPushMatrix();
 		{
-		   // glColor3f(1.0f, 0.0f, 0.0f);
+			// glColor3f(1.0f, 0.0f, 0.0f);
 			glTranslatef(player.x, player.y+player.floatOffset+2.0f, player.z);
 			glRotatef(player.rotation, 0.0f, 1.0f, 0.0f);
 			glScalef(0.25f, 0.25f, 0.25f);
@@ -591,7 +712,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of enemies.
 	 */
-	static final int ENEMY_COUNT = 3;
+	static final int ENEMY_COUNT = 20;
 
 	/**
 	 * Size of the enemies.
@@ -621,6 +742,7 @@ public class CubeQuest {
 		// position in the zx plane
 		float x;
 		float z;
+		float radius = 1.0f;
 
 		// direction of movement (+/- 1)
 		float dx;
@@ -670,7 +792,7 @@ public class CubeQuest {
 	static void enemiesUpdate(float dt) {
 
 		// for each enemy...
-		for (int i = 0; i < ENEMY_COUNT; i++) {
+		for (int i = 0; i < ENEMY_COUNT - 1; i++) {
 
 			Enemy e = enemies[i];
 
@@ -680,13 +802,17 @@ public class CubeQuest {
 			// if enemy is finished spawning...
 			if (e.t >= 0.0f) {
 
-				// set direction of motion toward player
-				e.dx = signum(player.x - e.x);
-				e.dz = signum(player.z - e.z);
+				if(col.checkCollisionPlayer(player, enemies[i]) == true){
+					// set direction of motion toward player
+				}
+				else {
+					e.dx = signum(player.x - e.x);
+					e.dz = signum(player.z - e.z);
 
-				// update location
-				e.x += e.dx*ENEMY_SPEED*dt;
-				e.z += e.dz*ENEMY_SPEED*dt;
+					// update location
+					e.x += e.dx * ENEMY_SPEED * dt;
+					e.z += e.dz * ENEMY_SPEED * dt;
+				}
 
 			}
 
@@ -965,7 +1091,7 @@ public class CubeQuest {
 	/**
 	 * Enemy speed in distance per second.
 	 */
-	static final float SPARK_SPEED = 1f;
+	static final float SPARK_SPEED = 0.001f;
 
 	/**
 	 * Time it takes for enemy to spawn in seconds.
@@ -978,125 +1104,20 @@ public class CubeQuest {
 	static final float SPARK_LIFE_TIME = 25.0f;
 
 	/**
-	 * Spark structure.
+	 * Enemty structure.
 	 */
 	static class Spark {
 
-		float speed = SPARK_SPEED;
-		float lifetime = random (5, SPARK_LIFE_TIME);
-		float gridOffset = 0.5f;
-		float gridSeparation = 1.0f;
-
-		// direction from grid intersection
-		private Direction direction;
-		// distance from grid intersection
-		private float distance;
 		// position in the zx plane
 		float x;
 		float z;
-		// the grid intersection that the spark is traveling from
-		private int gridX;
-		private int gridZ;
+
+		// direction of movement (+/- 1)
+		float dx;
+		float dz;
+
 		// age (in seconds)
 		float t;
-
-		private enum Direction {
-			NORTH,  // Z+
-			SOUTH,  // Z-
-			EAST,   // X-
-			WEST    // X+
-		}
-
-		// initialize self
-		public Spark() {
-			init();
-		}
-
-		/**
-		 * Init position and direction
-		 */
-		public void init() {
-			distance = random(0.0f, gridSeparation);
-			changeDirection();
-			gridX =  ((int) random(-WORLD_RADIUS/gridSeparation, +WORLD_RADIUS/gridSeparation));
-			gridZ =  ((int) random(-WORLD_RADIUS/gridSeparation, +WORLD_RADIUS/gridSeparation));
-			calculateXZ();
-			t = 0.0f;
-		}
-
-		public void changeDirection() {
-			switch ((int) random(0, 4)) {
-				case 0:
-					direction = Direction.NORTH;
-					break;
-
-				case 1:
-					direction = Direction.SOUTH;
-					break;
-
-				case 2:
-					direction = Direction.WEST;
-					break;
-
-				case 3:
-					direction = Direction.EAST;
-					break;
-
-			}
-		}
-
-		private void calculateXZ() {
-			x = gridX * gridSeparation + gridOffset;
-			z = gridZ * gridSeparation + gridOffset;
-			switch (direction) {
-				case NORTH:
-					z += distance;
-					break;
-
-				case SOUTH:
-					z -= distance;
-					break;
-
-				case WEST:
-					x -= distance;
-					break;
-
-				case EAST:
-					x += distance;
-					break;
-			}
-		}
-
-		public void update(float dt) {
-			if (t <= lifetime) {
-                distance += dt * speed;
-                if (distance > gridSeparation) {
-                    distance %= gridSeparation;
-                    switch (direction) {
-                        case NORTH:
-                            gridZ += 1;
-                            break;
-
-                        case SOUTH:
-                            gridZ -= 1;
-                            break;
-
-                        case WEST:
-                            gridX -= 1;
-                            break;
-
-                        case EAST:
-                            gridX += 1;
-                            break;
-                    }
-                    changeDirection();
-                }
-            } else {
-			    init();
-            }
-			calculateXZ();
-			t += dt;
-		}
 
 	}
 
@@ -1111,9 +1132,15 @@ public class CubeQuest {
 	 * Initialize enemy locations.
 	 */
 	static void sparkInit() {
-	for (int i = 0; i < SPARK_COUNT; i++) {
-		sparks[i] = new Spark();
-	}
+
+		// for each enemy
+		for (int i = 0; i < SPARK_COUNT; i++) {
+
+			// place it in a random world location
+			sparks[i] = new Spark();
+			sparkSpawn(sparks[i]);
+
+		}
 
 	}
 
@@ -1126,8 +1153,48 @@ public class CubeQuest {
 	 * @param dt a float
 	 */
 	static void sparkUpdate(float dt) {
-		for (Spark s : sparks) {
-			s.update(dt);
+		int turn = 0;
+		int steps = 0;
+
+		// for each spark...
+		for (int i = 0; i < SPARK_COUNT; i++) {
+
+			Spark s = sparks[i];
+
+			// update t
+			s.t += dt;
+
+			if (turn == 0) {
+				s.dx  = 0;
+				s.dz -= 1;
+			} else if (turn == 1) {
+				s.dx  = 0;
+				s.dz += 1;
+			} else if (turn == 2) {
+				s.dx += 1;
+				s.dz  = 0;
+			} else if (turn ==3) {
+				s.dx -= 1;
+				s.dz  = 0;
+			}
+
+
+			// update location
+			s.x += s.dx * SPARK_SPEED * s.t;
+			s.z += s.dz * SPARK_SPEED * s.t;
+			steps += 1;
+
+
+			if ( steps % 3 == 0 ) {
+				turn = ((int) random(0, 3));
+			}
+
+
+			if (steps >= SPARK_LIFE_TIME) {
+				sparkSpawn(s);
+				steps = 0;
+			}
+
 		}
 
 	}
@@ -1140,29 +1207,28 @@ public class CubeQuest {
 	static void sparkPlot() {
 
 		// for each spark...
-		for (Spark s : sparks) {
+		for (int i = 0; i < SPARK_COUNT; i++) {
+
+			// consider current enemy
+			Spark s = sparks[i];
 
 			glPushMatrix();
-            {
-                if (s.t < SPARK_SPAWN_TIME) {
-                    // color is red
-                    glColor3f(1.0f, 0.0f, 0.0f);
-                } else {
-                    // color is yellow
-                    glColor3f(1.0f, 1.0f, 0.0f);
-                }
+			{
 
-                // plot sphere at spark location
-                glTranslatef(s.x, -0.10f, s.z);
-                glPushMatrix();
-                {
-                    glScalef(SPARK_SIZE, SPARK_SIZE, SPARK_SIZE);
-                    glTranslatef(0.0f, 1.0f, 0.0f);
-                    plotUnitSphere(10);
-                }
-                glPopMatrix();
+				// color is yellow
+				glColor3f(1.0f, 1.0f, 0.0f);
 
-            }
+				// plot cube at spark location
+				glTranslatef(s.x, -0.10f, s.z);
+				glPushMatrix();
+				{
+					glScalef(SPARK_SIZE, SPARK_SIZE, SPARK_SIZE);
+					glTranslatef(0.0f, 1.0f, 0.0f);
+					plotSolidCube();
+				}
+				glPopMatrix();
+
+			}
 			glPopMatrix();
 
 		}
@@ -1170,6 +1236,21 @@ public class CubeQuest {
 	}
 
 
+
+	/**
+	 * Spawn spark s to new location.
+	 * along the grid
+	 * @param s A spark.
+	 */
+	static void sparkSpawn(Spark s) {
+
+		s.x =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+		s.x += 0.5f;
+		s.z =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
+		s.z += 0.5f;
+		s.t = 0.0f;
+
+	}
 	//==========================================================================
 	// TERRAIN
 	//==========================================================================
@@ -1178,7 +1259,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of Terrain instances.
 	 */
-	static final int   TERRAIN_COUNT = 10;
+	static final int   TERRAIN_COUNT = 5;
 
 
 	/**
@@ -1222,6 +1303,7 @@ public class CubeQuest {
 			// place it in a random world location
 			columns[i] = new Terrain();
 			terrainSpawn(columns[i]);
+
 
 		}
 
@@ -1359,7 +1441,7 @@ public class CubeQuest {
 	 */
 	// -----------------------------------------------------------------------------------------------------------------
 	/**
-	Initialize function and variables
+	 Initialize function and variables
 	 */
 	private static void set(float[] src, float[] dest) { System.arraycopy(src, 0, dest, 0, src.length); }
 
@@ -1602,7 +1684,7 @@ public class CubeQuest {
 		glPopMatrix();
 
 	}
-   // -----------------------------------------------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * Render a Unit cube.
@@ -2022,8 +2104,7 @@ public class CubeQuest {
 
 		playerInit();
 		enemiesInit();
-		//p.potionsInit();
-		//terrainArray();
+		p.potionsInit();
 		TerrainInit();
 		sparkInit();
 
@@ -2101,6 +2182,7 @@ public class CubeQuest {
 		}
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
 			PLAYER_SPEED = 25.0f;
+
 		}else if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
 			PLAYER_SPEED=10.0f;
 		}
@@ -2341,22 +2423,20 @@ public class CubeQuest {
 			glDisable(GL_LIGHTING);
 
 			// Test Pattern
-			/*glBegin(GL_QUADS);
-			{
-				glColor4f(1.0f,1.0f, 1.0f, 1.0f);
-				glVertex2f(0f, 0f);
-				glVertex2f(width/2, 0f);
-				glVertex2d(width/2, height/2);
-				glVertex2f(0f, height/2);
-
-
-				glColor4f(1.0f,0.0f, 0.0f, 1.0f);
-				glVertex2f(width/2, height/2);
-				glVertex2f(width-10, height/2);
-				glVertex2d(width-10, height-10);
-				glVertex2f(width/2, height-10);
-			}
-			glEnd();*/
+            /*glBegin(GL_QUADS);
+            {
+                glColor4f(1.0f,1.0f, 1.0f, 1.0f);
+                glVertex2f(0f, 0f);
+                glVertex2f(width/2, 0f);
+                glVertex2d(width/2, height/2);
+                glVertex2f(0f, height/2);
+                glColor4f(1.0f,0.0f, 0.0f, 1.0f);
+                glVertex2f(width/2, height/2);
+                glVertex2f(width-10, height/2);
+                glVertex2d(width-10, height-10);
+                glVertex2f(width/2, height-10);
+            }
+            glEnd();*/
 
 			renderHealth(width, height);
 			renderStamina(width, height);
