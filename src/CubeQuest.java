@@ -2037,14 +2037,11 @@ public class CubeQuest {
 		int source = alGenSources();
 		int buffer = alGenBuffers();
 		WaveData wd = WaveData.create(new BufferedInputStream(new FileInputStream("music.wav")));
-		System.out.println(wd.format);
-		System.out.println(wd.samplerate);
 		alBufferData(buffer,wd.format,wd.data,wd.samplerate);
+        wd.dispose();
 		alSourcei(source,AL_LOOPING,AL_TRUE);
 		alSourceQueueBuffers(source,buffer);
 		alSourcePlay(source);
-		wd.dispose();
-
 
 	}
 
