@@ -50,7 +50,7 @@ public class CubeQuest {
     /**
      * Player speed (distance per second).
      */
-    static float PLAYER_SPEED = 10.0f;
+    static float PLAYER_SPEED = 100f;
 
     /**
      * Player's shot speed (distance per second).
@@ -375,6 +375,8 @@ public class CubeQuest {
         float dx = 0.0f;
         float dz = 0.0f;
 
+        float radius = 1.0f;
+
         // facing direction
         Direction facing = Direction.SOUTH;
 
@@ -408,15 +410,50 @@ public class CubeQuest {
         void update(float dt) {
 
             // update player position
+            for (int i = 0; i < ENEMY_COUNT; i++) {
+                if (col.checkCollisionPlayer(player, enemies[i]) == true) {
 
-            x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
-            z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+                    x -= .1 + -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+                    z -= .1 + -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
 
-            x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
-            z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+                    x -= .1 + dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+                    z -= .1 + dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+
+                }
+                else {
+                    x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+                    z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+                    x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+                    z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+                }
 
 
-            t += dt;
+                t += dt;
+            }
+
+            /*for(int j = 0; j < TERRAIN_COUNT; j++){
+                if (col.checkCollisionPlayerTerrain(player, columns) == true){
+                    x -= .1 + -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+                    z -= .1 + -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+
+                    x -= .1 + dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+                    z -= .1 + dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+
+                    System.out.println("COLLISION");
+                }
+                else{
+                    x +=-dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+                    z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+                    x +=dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+                    z +=dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+                }
+            }*/
+
+
+
+
 
 
             // update player shots (if active)
@@ -449,6 +486,52 @@ public class CubeQuest {
 
     }
 
+    static class Collision {
+
+        public boolean checkCollisionPlayer(Player p, Enemy e) {
+            //check radius of player to radius of enemies
+            //if player.x + enemy.x < player.r + enemy.r && p.z + e.z < p.r + e.r
+            //collision
+            boolean collision = false;
+            for (int i = 0; i < ENEMY_COUNT; i++) {
+                if ((abs(p.x - e.x) < 2) && abs(p.z - e.z) < 2) {
+                    collision = true;
+                }
+                else{
+                    collision = false;
+                }
+            }
+            return collision;
+        }
+
+        /*public boolean checkCollisionPlayerTerrain(Player p, Terrain[] t){
+            boolean collision = false;
+            for (int i = 0; i < TERRAIN_COUNT; i++) {
+                if ((abs(p.x - t[i].x) < t[i].Width + 1) && abs(p.z - t[i].z) < t[i].Width + 1) {
+                    collision = true;
+                }
+                else{
+                    collision = false;
+                }
+            }
+            return collision;
+        }*/
+
+        public boolean checkCollisionEnemies(Enemy a, Enemy b) {
+            boolean collision = false;
+            for (int i = 0; i < ENEMY_COUNT; i++) {
+                if ((abs(a.x - b.x) < 2) && abs(a.z - b.z) < 2) {
+                    collision = true;
+                }
+                else{
+                    collision = false;
+                }
+            }
+            return collision;
+
+        }
+    }
+    final static Collision col = new Collision();
     /**
      * Player shot structure.
      */
@@ -498,7 +581,7 @@ public class CubeQuest {
         // plot player avatar
         glPushMatrix();
         {
-           // glColor3f(1.0f, 0.0f, 0.0f);
+            // glColor3f(1.0f, 0.0f, 0.0f);
             glTranslatef(player.x, player.y+player.floatOffset+2.0f, player.z);
             glRotatef(player.rotation, 0.0f, 1.0f, 0.0f);
             glScalef(0.25f, 0.25f, 0.25f);
@@ -621,6 +704,7 @@ public class CubeQuest {
         // position in the zx plane
         float x;
         float z;
+        float radius = 1.0f;
 
         // direction of movement (+/- 1)
         float dx;
@@ -670,7 +754,7 @@ public class CubeQuest {
     static void enemiesUpdate(float dt) {
 
         // for each enemy...
-        for (int i = 0; i < ENEMY_COUNT; i++) {
+        for (int i = 0; i < ENEMY_COUNT - 1; i++) {
 
             Enemy e = enemies[i];
 
@@ -680,19 +764,22 @@ public class CubeQuest {
             // if enemy is finished spawning...
             if (e.t >= 0.0f) {
 
-                // set direction of motion toward player
-                e.dx = signum(player.x - e.x);
-                e.dz = signum(player.z - e.z);
 
-                // update location
-                e.x += e.dx*ENEMY_SPEED*dt;
-                e.z += e.dz*ENEMY_SPEED*dt;
+                if (col.checkCollisionPlayer(player, enemies[i]) == true) {
+                    // set direction of motion toward player
+                } else {
+                    e.dx = signum(player.x - e.x);
+                    e.dz = signum(player.z - e.z);
+
+                    // update location
+                    e.x += e.dx * ENEMY_SPEED * dt;
+                    e.z += e.dz * ENEMY_SPEED * dt;
+                }
 
             }
-
+        }
         }
 
-    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // ENEMIES' MODEL---------------------------------------------------------------------------------------------------
@@ -1133,7 +1220,7 @@ public class CubeQuest {
     /**
      * Maximum number of Terrain instances.
      */
-    static final int   TERRAIN_COUNT = 1000;
+    static final int   TERRAIN_COUNT = 10;
 
 
     /**
@@ -1177,6 +1264,7 @@ public class CubeQuest {
             // place it in a random world location
             columns[i] = new Terrain();
             terrainSpawn(columns[i]);
+
 
         }
 
@@ -1314,7 +1402,7 @@ public class CubeQuest {
      */
     // -----------------------------------------------------------------------------------------------------------------
     /**
-    Initialize function and variables
+     Initialize function and variables
      */
     private static void set(float[] src, float[] dest) { System.arraycopy(src, 0, dest, 0, src.length); }
 
@@ -1557,7 +1645,7 @@ public class CubeQuest {
         glPopMatrix();
 
     }
-   // -----------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
 
     /**
      * Render a Unit cube.
@@ -1978,7 +2066,6 @@ public class CubeQuest {
         playerInit();
         enemiesInit();
         p.potionsInit();
-        terrainArray();
         TerrainInit();
         sparkInit();
 
@@ -2055,9 +2142,9 @@ public class CubeQuest {
             //player.facing = Direction.SOUTH;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
-            PLAYER_SPEED = 25.0f;
+            PLAYER_SPEED = 2.0f;
         }else if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
-            PLAYER_SPEED=10.0f;
+            PLAYER_SPEED=1.0f;
         }
 
         // space bar
@@ -2222,7 +2309,7 @@ public class CubeQuest {
                 plotUnitPolygon(128);
             }
             glPopMatrix();
-        
+
             glPushMatrix();
             {
                 glScalef(0.5f, 0.5f, 0.5f);
@@ -2303,8 +2390,6 @@ public class CubeQuest {
                 glVertex2f(width/2, 0f);
                 glVertex2d(width/2, height/2);
                 glVertex2f(0f, height/2);
-
-
                 glColor4f(1.0f,0.0f, 0.0f, 1.0f);
                 glVertex2f(width/2, height/2);
                 glVertex2f(width-10, height/2);
