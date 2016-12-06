@@ -2,8 +2,14 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.openal.AL;
+import static org.lwjgl.openal.AL10.*;
+import static org.lwjgl.openal.ALC10.*;
+import org.lwjgl.util.WaveData;
 import org.lwjgl.opengl.Display;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2027,6 +2033,18 @@ public class CubeQuest {
 		TerrainInit();
 		sparkInit();
 
+		AL.create();
+		int source = alGenSources();
+		int buffer = alGenBuffers();
+		WaveData wd = WaveData.create(new BufferedInputStream(new FileInputStream("music.wav")));
+		System.out.println(wd.format);
+		System.out.println(wd.samplerate);
+		alBufferData(buffer,wd.format,wd.data,wd.samplerate);
+		alSourcei(source,AL_LOOPING,AL_TRUE);
+		alSourceQueueBuffers(source,buffer);
+		alSourcePlay(source);
+		wd.dispose();
+
 
 	}
 
@@ -2430,6 +2448,8 @@ public class CubeQuest {
 		// Close the window
 		Display.destroy();
 		Mouse.destroy();
+
+		AL.destroy();
 	}
 
 	// =========================================================================
