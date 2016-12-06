@@ -1441,6 +1441,7 @@ public class CubeQuest {
 	static final float ITEM_SPAWN_TIME = 1.0f;
 
 	static final Potion p = new Potion();
+	static final SpeedPotion sp = new SpeedPotion();
 	static final Item item = new Item();
 // -----------------------------------------------------------------------------------------------------------------
 
@@ -1530,6 +1531,101 @@ public class CubeQuest {
 
 					// Potion flask (cone) red color
 					glColor3f(1.0f, 0.0f, 0.0f);
+					glPushMatrix();
+					{
+						glScalef(7.0f, 9.0f, 7.0f);
+						glScalef(0.5f, 0.5f, 0.5f);
+						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+						plotUnitCone(32);
+					}
+					glPopMatrix();
+				}
+				glPopMatrix();
+			}
+		}
+	}
+
+	private static class SpeedPotion {
+
+		// number of speed potions allowed on the map.
+		static final int POTION_COUNT = 1;
+
+		// position in the zx plane
+		float x;
+		float z;
+
+		// age (in seconds)
+		float time;
+
+		//Respawn a potion
+		static void speedPotionsInit() {
+			for (int i = 0; i <= POTION_COUNT; i++){
+				speedPotionRespawn();
+			}
+		}
+
+		static int collisionPlayerandSpeedPickup() {
+			//Calculate the distance between the Player and the Potion
+			float dist = (float) sqrt((sp.x - player.x)*(sp.x - player. x)+(sp.z - player.z)*(sp.z - player.z));
+
+			//If the distance < 1.0f then the player speed increases. Then the potion disappears and respawns on another place
+			if(dist < 1.0f){
+				// increase player speed for temporary amount of time
+				return 1;
+			}
+			return 0;
+		}
+
+		//Random a place for Potion to respawn
+		static void speedPotionRespawn() {
+			sp.x = random(-WORLD_RADIUS, WORLD_RADIUS);
+			sp.z = random(-WORLD_RADIUS, WORLD_RADIUS);
+			sp.time = -ITEM_SPAWN_TIME;
+		}
+
+		static void plotSpeedPotion() {
+			for (int i = 0; i <= POTION_COUNT; i++) {
+				glPushMatrix();
+				{
+					glTranslatef(sp.x, 0.0f, sp.z);
+					// Potion cap (hemisphere) brown color
+					glColor3f(1.0f, 0.5f, 0.0f);
+					glPushMatrix();
+					{
+						glScalef(2.5f, 3.0f, 2.5f);
+						glScalef(0.5f, 0.5f, 0.5f);
+						glTranslatef(0.0f, 0.4f, 0.0f);
+						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+						plotUnitHemisphere(16);
+					}
+					glPopMatrix();
+
+					// Potion cap (cone) brown color
+					glColor3f(1.0f, 0.5f, 0.0f);
+					glPushMatrix();
+					{
+						glScalef(2.5f, 3.0f, 2.5f);
+						glScalef(0.5f, 0.5f, 0.5f);
+						glTranslatef(0.0f, 0.4f, 0.0f);
+						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+						plotUnitCone(32);
+					}
+					glPopMatrix();
+
+					// Potion neck (cylinder) clear color
+					glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+					glPushMatrix();
+					{
+						glScalef(1.5f, 1.0f, 1.5f);
+						glScalef(0.5f, 0.5f, 0.5f);
+						glTranslatef(0.0f, 1.0f, 0.0f);
+						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+						plotUnitCylinder(32);
+					}
+					glPopMatrix();
+
+					// Potion flask (cone) pink color
+					glColor3f(1.0f, 0.0f, 1.0f);
 					glPushMatrix();
 					{
 						glScalef(7.0f, 9.0f, 7.0f);
@@ -2094,6 +2190,7 @@ public class CubeQuest {
 		playerInit();
 		enemiesInit();
 		p.potionsInit();
+		sp.speedPotionsInit();
 		TerrainInit();
 		sparkInit();
 
@@ -2255,6 +2352,7 @@ public class CubeQuest {
 
 		collisionShotsAndEnemies();
 		p.collisionPlayerandPickup();
+		sp.collisionPlayerandSpeedPickup();
 
 	}
 
@@ -2340,6 +2438,19 @@ public class CubeQuest {
 			if (p.collisionPlayerandPickup() == 1) {
 				p.potionsInit();
 			}
+
+			glPushMatrix();
+			{
+				glTranslatef(0.0f, 1.0f + height, 0.0f);
+				sp.plotSpeedPotion();
+				glPopMatrix();
+			}
+
+			//Respawn the Speed Potion in a different place on the surface once picked up by the player
+			if (sp.collisionPlayerandSpeedPickup() == 1) {
+				sp.speedPotionsInit();
+			}
+
 			glPushMatrix();//elevator
 			{
 				glColor3f(0.0f, 1.0f, 0.0f);
