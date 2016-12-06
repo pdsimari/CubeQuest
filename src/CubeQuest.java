@@ -415,8 +415,8 @@ public class CubeQuest {
 					dx = -1 * (enemies[i].dx * .01f);
 					dz = -1 * (enemies[i].dz * .01f);
 
-					x -= dx * 5.0f;
-					z -= dz * 5.0f;
+					x -= dx * 15.0f;
+					z -= dz * 15.0f;
 
 				}
 			}
@@ -695,7 +695,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of enemies.
 	 */
-	static final int ENEMY_COUNT = 0;
+	static final int ENEMY_COUNT = 20;
 
 	/**
 	 * Size of the enemies.
