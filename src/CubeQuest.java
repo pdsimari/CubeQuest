@@ -591,7 +591,7 @@ public class CubeQuest {
     /**
      * Maximum number of enemies.
      */
-    static final int ENEMY_COUNT = 100;
+    static final int ENEMY_COUNT = 1;
 
     /**
      * Size of the enemies.
@@ -904,7 +904,9 @@ public class CubeQuest {
 
     }
     // =========================================================================
-    // SPARKS
+    // SPARKS - An object that follows the grid and changes direction at every
+    //          intercection
+    //          Looks like electricity flowing along a wire
     // =========================================================================
 
     /**
@@ -1002,24 +1004,25 @@ public class CubeQuest {
             } else if (turn == 2) {
                 s.dx += 1;
                 s.dz  = 0;
-            } else if (turn ==3) {
+            } else if (turn == 3) {
                 s.dx -= 1;
                 s.dz  = 0;
             }
 
 
             // update location
-            s.x += s.dx * SPARK_SPEED * s.t;
-            s.z += s.dz * SPARK_SPEED * s.t;
+            s.x += s.dx * SPARK_SPEED * dt;
+            s.z += s.dz * SPARK_SPEED * dt;
             steps += 1;
 
 
-            if ( steps % 3 == 0 ) {
+            if ( steps > 5 ) {
                 turn = ((int) random(0, 3));
+                steps = 0;
             }
 
 
-            if (steps >= SPARK_LIFE_TIME) {
+            if (steps >= SPARK_LIFE_TIME || s.x > WORLD_RADIUS || s.z > WORLD_RADIUS) {
                 sparkSpawn(s);
                 steps = 0;
             }
