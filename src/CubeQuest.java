@@ -410,71 +410,46 @@ public class CubeQuest {
 		void update(float dt) {
 
 			// update player position
-			for (int i = 0; i < ENEMY_COUNT; i++) {
-				if (col.checkCollisionPlayer(player, enemies[i]) == true) {
+			for (int i = 0; i < ENEMY_COUNT - 1; i++) {
+				if (col.checkCollisionPlayer(player, enemies[i])) {
+					dx = -1 * (enemies[i].dx * .01f);
+					dz = -1 * (enemies[i].dz * .01f);
 
-					x -= -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
-					z -= -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+					x -= dx * 5.0f;
+					z -= dz * 5.0f;
 
-					x -= dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
-					z -= dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
 				}
-				else {
-					x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
-					z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
-
-					x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
-					z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
-				}
-
-
-				t += dt;
 			}
-
 
 			for(int j = 0; j < TERRAIN_COUNT; j++){
 				if (col.checkCollisionPlayerTerrain(player, columns) && (col.checkCollisionPlayerTerrainHeight(player, columns) == false)) {
-
 					x -= 1.0f;
 					z -= 1.0f;
 					gravity = 0.0f;
 					airTime = 0.0f;
-
-					jumping = doubleJumping = false;
-
 					System.out.println("COLLISION");
 				}
 				else{
-					x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
-					z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
-
-					x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
-					z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
-
 					gravity = -20.0f;
-
 					System.out.println("NO COLLISION");
 				}
 
 				if (col.checkCollisionPlayerTerrainHeight(player, columns))
 				{
-					gravity = 0.0f;
-					airTime = 0.0f;
 
-					x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
-					z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+					y = columns[j].Height * 2;
+					x -= dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+					z -= dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
 
-					x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
-					z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+					x -= -dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+					z -= -dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
 				}
 
 				else {
 					gravity = -20.f;
 					airTime += dt;
-					y = jumpStartHeight + jumpInitialSpeed*airTime + gravity*airTime*airTime/2.0f;
 
 					if (y <= 0) { // if below ground
-						jumping = doubleJumping = false;
 						y = 0;
 					}
 
@@ -504,11 +479,19 @@ public class CubeQuest {
 				}
 			}
 
+			x += -dz * PLAYER_SPEED * dt * sin(rotation * Math.PI / 180);
+			z += -dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
+
+			x += dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
+			z += dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
+
 			// find float offset
 			floatTime += (dt / floatingPeriod * 2*PI) % (2*PI);
 			floatOffset = (float) (-sin(floatTime) * floatingMagnitude);
 
 		}
+
+
 
 	}
 
@@ -712,7 +695,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of enemies.
 	 */
-	static final int ENEMY_COUNT = 20;
+	static final int ENEMY_COUNT = 0;
 
 	/**
 	 * Size of the enemies.
@@ -1259,7 +1242,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of Terrain instances.
 	 */
-	static final int   TERRAIN_COUNT = 5;
+	static final int   TERRAIN_COUNT = 1;
 
 
 	/**
@@ -1330,7 +1313,7 @@ public class CubeQuest {
 				glTranslatef(c.x, 0.0f, c.z);
 				glPushMatrix();
 				{
-					glScalef(c.Width, c.Height, c.Width);
+					glScalef(c.Width, .5f, c.Width);
 					glTranslatef(0.0f, 1.0f, 0.0f);
 					plotSolidCube();
 				}
@@ -1963,7 +1946,7 @@ public class CubeQuest {
 		glRotatef(180, 0.0f, 1.0f, 0.0f);
 		glTranslatef(0.0f, -1.0f, +2.0f);
 		glRotatef(player.rotation, 0.0f, -1.0f, 0.0f);
-		glTranslatef(-player.x * .25f, 0.0f, -player.z * .25f);
+		glTranslatef(-player.x * .25f, -player.y * .25f, -player.z * .25f);
 
 	}
 
