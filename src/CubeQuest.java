@@ -344,9 +344,9 @@ public class CubeQuest {
 	 */
 	static class Player {
 
-		float health = 70;
+		float health = 100;
 		float maxHealth = 100;
-		float Stamina=100;
+		float Stamina= 100;
 		float maxStamina=100;
 
 
@@ -1574,9 +1574,9 @@ public class CubeQuest {
 				//Calculate the distance between the Player and the Potion
 				float dist = (float) sqrt((x - player.x)*(x - player. x)+(z - player.z)*(z - player.z));
 
-				//If the distance < 1.0f then the player speed increases. Then the potion disappears and respawns on another place
+				//If the distance < 1.0f then the player stamina regen to 100. Then the potion disappears and respawns on another place
 				if(dist < 1.0f){
-					// increase player speed for temporary amount of time
+					player.Stamina = 100;
 					return 1;
 				}
 				return 0;
@@ -2317,10 +2317,7 @@ public class CubeQuest {
 			player.dz += +1.0f;
 			//player.facing = Direction.SOUTH;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
-			PLAYER_SPEED = 25.0f;
-
-		}else if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
+		if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))) {
 			PLAYER_SPEED=10.0f;
 		}
 
@@ -2654,6 +2651,28 @@ public class CubeQuest {
 		}
 		glEnd();
 		glPopMatrix();
+
+		// if shift is being pressed, stamina goes down.
+		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && Keyboard.isKeyDown(Keyboard.KEY_A) ||
+				Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && Keyboard.isKeyDown(Keyboard.KEY_S) ||
+				Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && Keyboard.isKeyDown(Keyboard.KEY_D) ||
+				Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && Keyboard.isKeyDown(Keyboard.KEY_W)){
+			if(player.Stamina > 0){
+				player.Stamina--;
+			}
+		}
+		// if shift is being pressed, the player starts running. if stamina is zero, the player moves at normal speed.
+		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && player.Stamina > 0){
+			PLAYER_SPEED = 25.0f;
+		}
+		else {
+			PLAYER_SPEED = 10.0f;
+		}
+
+		// if shift is not being pressed, stamina starts to regen.
+		if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) && player.Stamina < player.maxStamina){
+			player.Stamina += 0.05f;
+		}
 	}
 
 	// -------------------------------------------------------------------------
