@@ -1440,314 +1440,356 @@ public class CubeQuest {
 	// potion spawn time (in seconds)
 	static final float ITEM_SPAWN_TIME = 1.0f;
 
-	static final Potion p = new Potion();
-	static final SpeedPotion sp = new SpeedPotion();
 	static final Item item = new Item();
+
 // -----------------------------------------------------------------------------------------------------------------
 
 	// =========================================================================
 	// ITEMS
 	// =========================================================================
 
-	private static class Potion {
-
-		// number of potions allowed on the map.
-		static final int POTION_COUNT = 1;
-
-		// position in the zx plane
-		float x;
-		float z;
-
-		// age (in seconds)
-		float time;
-
-		//Respawn a potion
-		static void potionsInit() {
-			for (int i = 0; i <= POTION_COUNT; i++){
-				potionRespawn();
-			}
-		}
-
-		static int collisionPlayerandPickup() {
-			//Calculate the distance between the Player and the Potion
-			float dist = (float) sqrt((p.x - player.x)*(p.x - player. x)+(p.z - player.z)*(p.z - player.z));
-
-			//If the distance < 1.0f then the player health regen to 100. Then the potion disappears and respawns on another place
-			if(dist < 1.0f){
-				player.health = 100;
-				return 1;
-			}
-			return 0;
-		}
-
-		//Random a place for Potion to respawn
-		static void potionRespawn() {
-			p.x = random(-WORLD_RADIUS, WORLD_RADIUS);
-			p.z = random(-WORLD_RADIUS, WORLD_RADIUS);
-			p.time = -ITEM_SPAWN_TIME;
-		}
-
-		//Plot Potion
-		static void plotPotion() {
-			for (int i = 0; i <= POTION_COUNT; i++) {
-				glPushMatrix();
-				{
-					glTranslatef(p.x, 0.0f, p.z);
-					// Potion cap (hemisphere) brown color
-					glColor3f(1.0f, 0.5f, 0.0f);
-					glPushMatrix();
-					{
-						glScalef(2.5f, 3.0f, 2.5f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glTranslatef(0.0f, 0.4f, 0.0f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitHemisphere(16);
-					}
-					glPopMatrix();
-
-					// Potion cap (cone) brown color
-					glColor3f(1.0f, 0.5f, 0.0f);
-					glPushMatrix();
-					{
-						glScalef(2.5f, 3.0f, 2.5f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glTranslatef(0.0f, 0.4f, 0.0f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitCone(32);
-					}
-					glPopMatrix();
-
-					// Potion neck (cylinder) clear color
-					glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-					glPushMatrix();
-					{
-						glScalef(1.5f, 1.0f, 1.5f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glTranslatef(0.0f, 1.0f, 0.0f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitCylinder(32);
-					}
-					glPopMatrix();
-
-					// Potion flask (cone) red color
-					glColor3f(1.0f, 0.0f, 0.0f);
-					glPushMatrix();
-					{
-						glScalef(7.0f, 9.0f, 7.0f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitCone(32);
-					}
-					glPopMatrix();
-				}
-				glPopMatrix();
-			}
-		}
-	}
-
-	private static class SpeedPotion {
-
-		// number of speed potions allowed on the map.
-		static final int POTION_COUNT = 1;
-
-		// position in the zx plane
-		float x;
-		float z;
-
-		// age (in seconds)
-		float time;
-
-		//Respawn a potion
-		static void speedPotionsInit() {
-			for (int i = 0; i <= POTION_COUNT; i++){
-				speedPotionRespawn();
-			}
-		}
-
-		static int collisionPlayerandSpeedPickup() {
-			//Calculate the distance between the Player and the Potion
-			float dist = (float) sqrt((sp.x - player.x)*(sp.x - player. x)+(sp.z - player.z)*(sp.z - player.z));
-
-			//If the distance < 1.0f then the player speed increases. Then the potion disappears and respawns on another place
-			if(dist < 1.0f){
-				// increase player speed for temporary amount of time
-				return 1;
-			}
-			return 0;
-		}
-
-		//Random a place for Potion to respawn
-		static void speedPotionRespawn() {
-			sp.x = random(-WORLD_RADIUS, WORLD_RADIUS);
-			sp.z = random(-WORLD_RADIUS, WORLD_RADIUS);
-			sp.time = -ITEM_SPAWN_TIME;
-		}
-
-		static void plotSpeedPotion() {
-			for (int i = 0; i <= POTION_COUNT; i++) {
-				glPushMatrix();
-				{
-					glTranslatef(sp.x, 0.0f, sp.z);
-					// Potion cap (hemisphere) brown color
-					glColor3f(1.0f, 0.5f, 0.0f);
-					glPushMatrix();
-					{
-						glScalef(2.5f, 3.0f, 2.5f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glTranslatef(0.0f, 0.4f, 0.0f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitHemisphere(16);
-					}
-					glPopMatrix();
-
-					// Potion cap (cone) brown color
-					glColor3f(1.0f, 0.5f, 0.0f);
-					glPushMatrix();
-					{
-						glScalef(2.5f, 3.0f, 2.5f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glTranslatef(0.0f, 0.4f, 0.0f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitCone(32);
-					}
-					glPopMatrix();
-
-					// Potion neck (cylinder) clear color
-					glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-					glPushMatrix();
-					{
-						glScalef(1.5f, 1.0f, 1.5f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glTranslatef(0.0f, 1.0f, 0.0f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitCylinder(32);
-					}
-					glPopMatrix();
-
-					// Potion flask (cone) pink color
-					glColor3f(1.0f, 0.0f, 1.0f);
-					glPushMatrix();
-					{
-						glScalef(7.0f, 9.0f, 7.0f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
-						plotUnitCone(32);
-					}
-					glPopMatrix();
-				}
-				glPopMatrix();
-			}
-		}
-	}
 
 	// -----------------------------------------------------------------------------------------------------------------
 	private static class Item {
 
-		//Plot the Treasure Chest
-		private static void plotTreasureChest() {
+		Potion potion = new Potion();
+		SpeedPotion potion2 = new SpeedPotion();
+		Treasure treasure = new Treasure();
+		private static class Potion{
 
-			//Set the x,y,z,h position for the Treasure
-			float x = (float) 2.5;
-			float y = (float) 3.0;
-			float z = (float) 2.5;
-			float h = (float) 2.5;
+			// number of potions allowed on the map.
+			static final int POTION_COUNT = 1;
 
-			//Set the white color
-			glColor3f(1.0f, 1.0f, 1.0f);
+			// position in the zx plane
+			static float x;
+			static float z;
 
-			//Plot base
-			glPushMatrix();
-			{
-				glTranslatef(0.0f, 0.5f, 0.0f);
-				glScalef(0.5f, 0.5f, 0.5f);
-				glScalef(6.0f, 0.5f, 6.0f);
-				plotUnitCube();
+			// age (in seconds)
+			static float time;
+
+			//Respawn a potion
+			static void potionsInit() {
+				for (int i = 0; i <= POTION_COUNT; i++){
+					potionRespawn();
+				}
 			}
-			glPopMatrix();
 
-			//Draw the front
-			plotCylinder(x, y, z, h, 0.3f);
-			plotCylinder(x / 2, y, z, h, 0.3f);
-			plotCylinder(0, y, z, h, 0.3f);
-			plotCylinder(-x / 2, y, z, h, 0.3f);
-			plotCylinder(-x, y, z, h, 0.3f);
+			static int collisionPlayerandPickup() {
+				//Calculate the distance between the Player and the Potion
+				float dist = (float) sqrt((x - player.x)*(x - player. x)+(z - player.z)*(z - player.z));
 
-			//Draw the middle
-			plotCylinder(x, y, 0.0f, h, 0.3f);
-
-			plotCylinder(x, y, z / 2, h, 0.3f);
-
-			plotCylinder(x, y, -z / 2, h, 0.3f);
-
-			plotCylinder(-x, y, 0.0f, h, 0.3f);
-
-			plotCylinder(-x, y, z / 2, h, 0.3f);
-
-			plotCylinder(-x, y, -z / 2, h, 0.3f);
-
-			//Draw the back
-			plotCylinder(x, y, -z, h, 0.3f);
-			plotCylinder(x / 2, y, -z, h, 0.3f);
-			plotCylinder(0, y, -z, h, 0.3f);
-			plotCylinder(-x / 2, y, -z, h, 0.3f);
-			plotCylinder(-x, y, -z, h, 0.3f);
-
-			//Draw the roof
-			glPushMatrix();
-			{
-				glTranslatef(0.0f, y + 2.5f, 0.0f);
-				glScalef(0.5f, 0.5f, 0.5f);
-				glScalef(6.0f, 0.5f, 6.0f);
-				plotUnitCube();
+				//If the distance < 1.0f then the player health regen to 100. Then the potion disappears and respawns on another place
+				if(dist < 1.0f){
+					player.health = 100;
+					return 1;
+				}
+				return 0;
 			}
-			glPopMatrix();
 
+			//Random a place for Potion to respawn
+			static void potionRespawn() {
+				x = random(-WORLD_RADIUS, WORLD_RADIUS);
+				z = random(-WORLD_RADIUS, WORLD_RADIUS);
+				time = -ITEM_SPAWN_TIME;
+			}
+
+			//Plot Potion
+			static void plotPotion() {
+				for (int i = 0; i <= POTION_COUNT; i++) {
+					glPushMatrix();
+					{
+						glTranslatef(x, 0.0f, z);
+						// Potion cap (hemisphere) brown color
+						glColor3f(1.0f, 0.5f, 0.0f);
+						glPushMatrix();
+						{
+							glScalef(2.5f, 3.0f, 2.5f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glTranslatef(0.0f, 0.4f, 0.0f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitHemisphere(16);
+						}
+						glPopMatrix();
+
+						// Potion cap (cone) brown color
+						glColor3f(1.0f, 0.5f, 0.0f);
+						glPushMatrix();
+						{
+							glScalef(2.5f, 3.0f, 2.5f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glTranslatef(0.0f, 0.4f, 0.0f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitCone(32);
+						}
+						glPopMatrix();
+
+						// Potion neck (cylinder) clear color
+						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+						glPushMatrix();
+						{
+							glScalef(1.5f, 1.0f, 1.5f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glTranslatef(0.0f, 1.0f, 0.0f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitCylinder(32);
+						}
+						glPopMatrix();
+
+						// Potion flask (cone) red color
+						glColor3f(1.0f, 0.0f, 0.0f);
+						glPushMatrix();
+						{
+							glScalef(7.0f, 9.0f, 7.0f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitCone(32);
+						}
+						glPopMatrix();
+					}
+					glPopMatrix();
+				}
+			}
 		}
 
-		// -----------------------------------------------------------------------------------------------------------------
-		private static void plotSword() {
-			//Set the black color
-			glColor3f(0.0f, 0.0f, 0.0f);
+		private static class SpeedPotion {
 
-			//Plot the body of the Sword along the y axis
-			glPushMatrix();
-			{
-				glTranslatef(0.0f, 1.0f, 0.0f);
-				glScalef(0.5f, 0.5f, 0.5f);
-				glScalef(0.5f, 3.5f, 0.3f);
-				plotUnitCube();
-			}
-			glPopMatrix();
+			// number of speed potions allowed on the map.
+			static final int POTION_COUNT = 1;
 
-			//plot the middle of the Sword along the x and z axis
-			glPushMatrix();
-			{
-				glTranslatef(0.0f, 0.5f, 0.0f);
-				glScalef(0.5f, 0.5f, 0.5f);
-				glScalef(2.0f, 0.5f, 0.3f);
-				plotUnitCube();
-			}
-			glPopMatrix();
+			// position in the zx plane
+			static float x;
+			static float z;
 
-			//Plot the right of the Sword
-			glPushMatrix();
-			{
-				glTranslatef(0.75f, 0.9f, 0.0f);
-				glScalef(0.5f, 0.5f, 0.5f);
-				glScalef(0.5f, 1.0f, 0.3f);
-				plotUnitCube();
-			}
-			glPopMatrix();
+			// age (in seconds)
+			static float time;
 
-			//Plot the left of the Sword
-			glPushMatrix();
-			{
-				glTranslatef(-0.75f, 0.9f, 0.0f);
-				glScalef(0.5f, 0.5f, 0.5f);
-				glScalef(0.5f, 1.0f, 0.3f);
-				plotUnitCube();
+			//Respawn a potion
+			static void speedPotionsInit() {
+				for (int i = 0; i <= POTION_COUNT; i++){
+					speedPotionRespawn();
+				}
 			}
-			glPopMatrix();
+
+			static int collisionPlayerandSpeedPickup() {
+				//Calculate the distance between the Player and the Potion
+				float dist = (float) sqrt((x - player.x)*(x - player. x)+(z - player.z)*(z - player.z));
+
+				//If the distance < 1.0f then the player speed increases. Then the potion disappears and respawns on another place
+				if(dist < 1.0f){
+					// increase player speed for temporary amount of time
+					return 1;
+				}
+				return 0;
+			}
+
+			//Random a place for Potion to respawn
+			static void speedPotionRespawn() {
+				x = random(-WORLD_RADIUS, WORLD_RADIUS);
+				z = random(-WORLD_RADIUS, WORLD_RADIUS);
+				time = -ITEM_SPAWN_TIME;
+			}
+
+			static void plotSpeedPotion() {
+				for (int i = 0; i <= POTION_COUNT; i++) {
+					glPushMatrix();
+					{
+						glTranslatef(x, 0.0f, z);
+						// Potion cap (hemisphere) brown color
+						glColor3f(1.0f, 0.5f, 0.0f);
+						glPushMatrix();
+						{
+							glScalef(2.5f, 3.0f, 2.5f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glTranslatef(0.0f, 0.4f, 0.0f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitHemisphere(16);
+						}
+						glPopMatrix();
+
+						// Potion cap (cone) brown color
+						glColor3f(1.0f, 0.5f, 0.0f);
+						glPushMatrix();
+						{
+							glScalef(2.5f, 3.0f, 2.5f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glTranslatef(0.0f, 0.4f, 0.0f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitCone(32);
+						}
+						glPopMatrix();
+
+						// Potion neck (cylinder) clear color
+						glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+						glPushMatrix();
+						{
+							glScalef(1.5f, 1.0f, 1.5f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glTranslatef(0.0f, 1.0f, 0.0f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitCylinder(32);
+						}
+						glPopMatrix();
+
+						// Potion flask (cone) pink color
+						glColor3f(1.0f, 0.0f, 1.0f);
+						glPushMatrix();
+						{
+							glScalef(7.0f, 9.0f, 7.0f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glScalef(ITEM_SIZE, ITEM_SIZE, ITEM_SIZE);
+							plotUnitCone(32);
+						}
+						glPopMatrix();
+					}
+					glPopMatrix();
+				}
+			}
+		}
+
+
+		private static class Treasure {
+			// number of potions allowed on the map.
+			static final int TREASURE_COUNT = 1;
+
+			// position in the zx plane
+			static float x;
+			static float z;
+
+			// age (in seconds)
+			static float time;
+
+			//Respawn a potion
+			static void treasureInit() {
+				for (int i = 0; i <= TREASURE_COUNT; i++){
+					TreasureRespawn();
+				}
+			}
+
+			static int collisionPlayerandPickup() {
+				//Calculate the distance between the Player and the Potion
+				float dist = (float) sqrt((x - player.x)*(x - player. x)+(z - player.z)*(z - player.z));
+
+				//If the distance < 1.0f then the player health regen to 100. Then the potion disappears and respawns on another place
+				if(dist < 1.0f){
+					player.health = 100;
+					return 1;
+				}
+				return 0;
+			}
+
+			//Random a place for Potion to respawn
+			static void TreasureRespawn() {
+				x = random(-WORLD_RADIUS, WORLD_RADIUS);
+				z = random(-WORLD_RADIUS, WORLD_RADIUS);
+				time = -ITEM_SPAWN_TIME;
+			}
+
+
+			//Plot the Treasure Chest
+			private static void plotTreasureChest() {
+				//Set the x,y,z,h position for the Treasure
+				float x = (float) 2.5;
+				float y = (float) 3.0;
+				float z = (float) 2.5;
+				float h = (float) 2.5;
+
+				//Set the white color
+				glColor3f(1.0f, 1.0f, 1.0f);
+
+				//Plot base
+				glPushMatrix();
+				{
+					glTranslatef(0.0f, 0.5f, 0.0f);
+					glScalef(0.5f, 0.5f, 0.5f);
+					glScalef(6.0f, 0.5f, 6.0f);
+					plotUnitCube();
+				}
+				glPopMatrix();
+
+				//Draw the front
+				plotCylinder(x, y, z, h, 0.3f);
+				plotCylinder(x / 2, y, z, h, 0.3f);
+				plotCylinder(0, y, z, h, 0.3f);
+				plotCylinder(-x / 2, y, z, h, 0.3f);
+				plotCylinder(-x, y, z, h, 0.3f);
+
+				//Draw the middle
+				plotCylinder(x, y, 0.0f, h, 0.3f);
+
+				plotCylinder(x, y, z / 2, h, 0.3f);
+
+				plotCylinder(x, y, -z / 2, h, 0.3f);
+
+				plotCylinder(-x, y, 0.0f, h, 0.3f);
+
+				plotCylinder(-x, y, z / 2, h, 0.3f);
+
+				plotCylinder(-x, y, -z / 2, h, 0.3f);
+
+				//Draw the back
+				plotCylinder(x, y, -z, h, 0.3f);
+				plotCylinder(x / 2, y, -z, h, 0.3f);
+				plotCylinder(0, y, -z, h, 0.3f);
+				plotCylinder(-x / 2, y, -z, h, 0.3f);
+				plotCylinder(-x, y, -z, h, 0.3f);
+
+				//Draw the roof
+				glPushMatrix();
+				{
+					glTranslatef(0.0f, y + 2.5f, 0.0f);
+					glScalef(0.5f, 0.5f, 0.5f);
+					glScalef(6.0f, 0.5f, 6.0f);
+					plotUnitCube();
+				}
+				glPopMatrix();
+
+			}
+
+			// -----------------------------------------------------------------------------------------------------------------
+			private static void plotSword() {
+				//Set the black color
+				glColor3f(0.0f, 0.0f, 0.0f);
+
+				//Plot the body of the Sword along the y axis
+				glPushMatrix();
+				{
+					glTranslatef(0.0f, 1.0f, 0.0f);
+					glScalef(0.5f, 0.5f, 0.5f);
+					glScalef(0.5f, 3.5f, 0.3f);
+					plotUnitCube();
+				}
+				glPopMatrix();
+
+				//plot the middle of the Sword along the x and z axis
+				glPushMatrix();
+				{
+					glTranslatef(0.0f, 0.5f, 0.0f);
+					glScalef(0.5f, 0.5f, 0.5f);
+					glScalef(2.0f, 0.5f, 0.3f);
+					plotUnitCube();
+				}
+				glPopMatrix();
+
+				//Plot the right of the Sword
+				glPushMatrix();
+				{
+					glTranslatef(0.75f, 0.9f, 0.0f);
+					glScalef(0.5f, 0.5f, 0.5f);
+					glScalef(0.5f, 1.0f, 0.3f);
+					plotUnitCube();
+				}
+				glPopMatrix();
+
+				//Plot the left of the Sword
+				glPushMatrix();
+				{
+					glTranslatef(-0.75f, 0.9f, 0.0f);
+					glScalef(0.5f, 0.5f, 0.5f);
+					glScalef(0.5f, 1.0f, 0.3f);
+					plotUnitCube();
+				}
+				glPopMatrix();
+			}
 		}
 	}
 	// =========================================================================
@@ -2189,8 +2231,8 @@ public class CubeQuest {
 
 		playerInit();
 		enemiesInit();
-		p.potionsInit();
-		sp.speedPotionsInit();
+		item.potion.potionsInit();
+		item.potion2.speedPotionsInit();
 		TerrainInit();
 		sparkInit();
 
@@ -2351,8 +2393,8 @@ public class CubeQuest {
 		// TODO: add necessary collision checks and behaviors.
 
 		collisionShotsAndEnemies();
-		p.collisionPlayerandPickup();
-		sp.collisionPlayerandSpeedPickup();
+		item.potion.collisionPlayerandPickup();
+		item.potion2.collisionPlayerandSpeedPickup();
 
 	}
 
@@ -2430,25 +2472,25 @@ public class CubeQuest {
 			glPushMatrix();
 			{
 				glTranslatef(0.0f, 1.0f + height, 0.0f);
-				p.plotPotion();
+				item.potion.plotPotion();
 				glPopMatrix();
 			}
 
 			//Respawn the Potion in a different place on the surface once picked up by the player
-			if (p.collisionPlayerandPickup() == 1) {
-				p.potionsInit();
+			if (item.potion.collisionPlayerandPickup() == 1) {
+				item.potion.potionsInit();
 			}
 
 			glPushMatrix();
 			{
 				glTranslatef(0.0f, 1.0f + height, 0.0f);
-				sp.plotSpeedPotion();
+				item.potion2.plotSpeedPotion();
 				glPopMatrix();
 			}
 
 			//Respawn the Speed Potion in a different place on the surface once picked up by the player
-			if (sp.collisionPlayerandSpeedPickup() == 1) {
-				sp.speedPotionsInit();
+			if (item.potion2.collisionPlayerandSpeedPickup() == 1) {
+				item.potion2.speedPotionsInit();
 			}
 
 			glPushMatrix();//elevator
@@ -2464,12 +2506,17 @@ public class CubeQuest {
 				glScalef(0.5f, 0.5f, 0.5f);
 
 				//Plot a Treasure Chest on a surface
-				//item.plotTreasureChest();
+				item.treasure.plotTreasureChest();
 				//Plot a Sword inside the Treasure Chest and make it move following the sin wave according to the y axis
 				glTranslatef(0.0f, 2.0f + height, 0.0f);
-				//item.plotSword();
+				item.treasure.plotSword();
 				glPopMatrix();
 			}
+
+			if (item.treasure.collisionPlayerandPickup()==1){
+				item.treasure.treasureInit();
+			}
+
 			terrainPlot();
 			sparkPlot();
 		}
