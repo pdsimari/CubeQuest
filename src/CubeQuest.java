@@ -1673,7 +1673,7 @@ public class CubeQuest {
 				System.out.println(z+ " " +player.z);
 				System.out.println(dist);
 				//If the distance < 1.0f then the player health regen to 100. Then the potion disappears and respawns on another place
-				if(dist < 40.0f){
+				if(dist < 50.0f){
 					player.health = 100;
 					return 1;
 				}
@@ -1682,8 +1682,8 @@ public class CubeQuest {
 
 			//Random a place for Potion to respawn
 			static void TreasureRespawn() {
-				x = random(-50f, 50f);
-				z = random(-50f, 50f);
+				x = random(-WORLD_RADIUS, WORLD_RADIUS);
+				z = random(-WORLD_RADIUS, WORLD_RADIUS);
 				time = -ITEM_SPAWN_TIME;
 			}
 
