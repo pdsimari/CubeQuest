@@ -2325,6 +2325,7 @@ public class CubeQuest {
 
 	private static void playEnemyDeadSound(float x, float y) {
 		alSourceRewind(fxSources[2]);
+		alSourcef(fxSources[2],AL_PITCH,random(0.5f,1.5f));
 		alSourcePlay(fxSources[2]);
 	}
 
