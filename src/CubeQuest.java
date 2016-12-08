@@ -4,12 +4,13 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.openal.AL;
 import static org.lwjgl.openal.AL10.*;
-import static org.lwjgl.openal.ALC10.*;
+
 import org.lwjgl.util.WaveData;
 import org.lwjgl.opengl.Display;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,6 +89,21 @@ public class CubeQuest {
 	 */
 	static final float PLAYER_SHOT_DELAY = PLAYER_SHOT_DURATION/
 			PLAYER_SHOT_MAX;
+
+	/**
+	 * Maximum number of sound sources that can play at the same time.
+	 */
+	static final int MAX_SOUND_SOURCES = 32;
+	static int musicSource;
+	static int[] fxSources = new int[MAX_SOUND_SOURCES-1];
+	static int nextSoundSourceIndex = 0;
+
+	// Sound buffers
+	static int 	musicBuffer,
+				shotBuffer,
+				hitBuffer,
+				enemy_deadBuffer;
+
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -676,6 +692,7 @@ public class CubeQuest {
 
 			// found re-usable shot slot
 			if (shot.t >= PLAYER_SHOT_DURATION) {
+				playShotSound();
 
 				// activate it
 				shot.t = 0.0f;
@@ -2229,13 +2246,13 @@ public class CubeQuest {
 		// antialiasing
 		glEnable(GL_POINT_SMOOTH);
 		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_POLYGON_SMOOTH);
+		//glEnable(GL_POLYGON_SMOOTH);
 
 		// fog
 		glEnable(GL_FOG);
-		glFog(GL_FOG_COLOR, floatBuffer(1.0f, 1.0f, 1.0f, 1.0f));
+		glFog(GL_FOG_COLOR, floatBuffer(0.0f, 0.0f, 0.0f, 1.0f));
 		glFogi(GL_FOG_MODE, GL_EXP2);
-		glFogf(GL_FOG_DENSITY, 0.01f);
+		glFogf(GL_FOG_DENSITY, 0.05f);
 
 		// TODO: initialize game elements
 
@@ -2247,17 +2264,70 @@ public class CubeQuest {
 		TerrainInit();
 		sparkInit();
 
-		AL.create();
-		int source = alGenSources();
-		int buffer = alGenBuffers();
-		WaveData wd = WaveData.create(new BufferedInputStream(new FileInputStream("music.wav")));
-		alBufferData(buffer,wd.format,wd.data,wd.samplerate);
-        wd.dispose();
-		alSourcei(source,AL_LOOPING,AL_TRUE);
-		alSourceQueueBuffers(source,buffer);
-		alSourcePlay(source);
+		soundInit();
 
 	}
+
+	private static void soundInit() throws LWJGLException, FileNotFoundException {
+		// Init OpenAL
+		AL.create();
+
+		// Generate Sources
+		musicSource = alGenSources();
+		for (int i = 0; i < fxSources.length; i++) {
+			fxSources[i] = alGenSources();
+		}
+
+		// Generate Buffers
+		musicBuffer = alGenBuffers();
+		shotBuffer = alGenBuffers();
+		hitBuffer = alGenBuffers();
+		enemy_deadBuffer = alGenBuffers();
+
+		// Load Sound Files
+		// Music
+		loadWavIntoBuffer(musicBuffer, "sound/music.wav");
+		alSourceQueueBuffers(musicSource,musicBuffer);
+		// Shot
+		loadWavIntoBuffer(shotBuffer, "sound/shot.wav");
+		alSourceQueueBuffers(fxSources[0],shotBuffer);
+		// Hit
+		loadWavIntoBuffer(hitBuffer, "sound/hit.wav");
+		alSourceQueueBuffers(fxSources[1],hitBuffer);
+		// Pop
+		loadWavIntoBuffer(enemy_deadBuffer, "sound/enemy_dead.wav");
+		alSourceQueueBuffers(fxSources[2], enemy_deadBuffer);
+
+		// Play Music Loop
+		alSourcei(musicSource,AL_LOOPING,AL_TRUE);
+		alSourcePlay(musicSource);
+	}
+
+	private static void loadWavIntoBuffer(int buffer, String path) {
+		try {
+			WaveData wd = WaveData.create(new BufferedInputStream(new FileInputStream(path)));
+			alBufferData(buffer,wd.format,wd.data,wd.samplerate);
+			wd.dispose();
+		} catch (FileNotFoundException e) {
+			System.out.println(e.toString());
+		}
+	}
+
+	private static void playShotSound() {
+		alSourceRewind(fxSources[0]);
+		alSourcePlay(fxSources[0]);
+	}
+
+	private static void playHitSound(float x, float y) {
+		alSourceRewind(fxSources[1]);
+		alSourcePlay(fxSources[1]);
+	}
+
+	private static void playEnemyDeadSound(float x, float y) {
+		alSourceRewind(fxSources[2]);
+		alSourcePlay(fxSources[2]);
+	}
+
 
 	// -------------------------------------------------------------------------
 
@@ -2426,6 +2496,9 @@ public class CubeQuest {
 					e.health -= PLAYER_SHOT_DAMAGE;
 					if (e.health <= 0) {
 						enemiesRespawn(e);
+						playEnemyDeadSound(e.x,e.z);
+					} else {
+						playHitSound(e.x, e.z);
 					}
 
 					// disable shot
