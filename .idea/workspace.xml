@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1402158b-177f-40a3-9fd0-ba510b1cf082" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CubeQuest.java" afterPath="$PROJECT_DIR$/src/CubeQuest.java" />
     </list>
     <ignored path="CubeDemo.iws" />
@@ -27,8 +26,8 @@
       <file leaf-file-name="CubeQuest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/CubeQuest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1046">
-              <caret line="1251" column="16" lean-forward="false" selection-start-line="1251" selection-start-column="16" selection-end-line="1251" selection-end-column="16" />
+            <state relative-caret-position="213">
+              <caret line="1104" column="47" lean-forward="true" selection-start-line="1103" selection-start-column="7" selection-end-line="1104" selection-end-column="47" />
               <folding />
             </state>
           </provider>
@@ -376,7 +375,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.56744707" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.56744707" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -498,8 +497,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/CubeQuest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1046">
-          <caret line="1251" column="16" lean-forward="false" selection-start-line="1251" selection-start-column="16" selection-end-line="1251" selection-end-column="16" />
+        <state relative-caret-position="213">
+          <caret line="1104" column="47" lean-forward="true" selection-start-line="1103" selection-start-column="7" selection-end-line="1104" selection-end-column="47" />
           <folding />
         </state>
       </provider>
