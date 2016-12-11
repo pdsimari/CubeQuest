@@ -1109,21 +1109,117 @@ public class CubeQuest {
 	 */
 	static final float SPARK_LIFE_TIME = 25.0f;
 
-	/**
-	 * Enemty structure.
-	 */
 	static class Spark {
 
+		float speed = SPARK_SPEED;
+		float lifetime = SPARK_LIFE_TIME;
+		float gridOffset = 0.5f;
+		float gridSeparation = 1.0f;
+
+		// direction from grid intersection
+		private Direction direction;
+		// distance from grid intersection
+		private float distance;
 		// position in the zx plane
 		float x;
 		float z;
-
-		// direction of movement (+/- 1)
-		float dx;
-		float dz;
-
+		// the grid intersection that the spark is traveling from
+		private int gridX;
+		private int gridZ;
 		// age (in seconds)
 		float t;
+
+		private enum Direction {
+			NORTH, // Z+
+			SOUTH, // Z-
+			EAST, // X-
+			WEST} // X+
+
+		// initialize self
+		public Spark() {
+			init();
+		}
+
+		/**
+		 * Init position and direction
+		 */
+		public void init() {
+			distance = random(0.0f, gridSeparation);
+			changeDirection();
+			gridX =  ((int) random(-WORLD_RADIUS/gridSeparation, +WORLD_RADIUS/gridSeparation));
+			gridZ =  ((int) random(-WORLD_RADIUS/gridSeparation, +WORLD_RADIUS/gridSeparation));
+			calculateXZ();
+			t = 0.0f;
+		}
+
+		public void changeDirection() {
+			switch ((int) random(0, 4)) {
+				case 0:
+					direction = Direction.NORTH;
+					break;
+
+				case 1:
+					direction = Direction.SOUTH;
+					break;
+
+				case 2:
+					direction = Direction.WEST;
+					break;
+
+				case 3:
+					direction = Direction.EAST;
+					break;
+
+			}
+		}
+
+		private void calculateXZ() {
+			x = gridX * gridSeparation + gridOffset;
+			z = gridZ * gridSeparation + gridOffset;
+			switch (direction) {
+				case NORTH:
+					z += distance;
+					break;
+
+				case SOUTH:
+					z -= distance;
+					break;
+
+				case WEST:
+					x -= distance;
+					break;
+
+				case EAST:
+					x += distance;
+					break;
+			}
+		}
+
+		public void update(float dt) {
+			distance += dt * speed;
+			if (distance > gridSeparation) {
+				distance %= gridSeparation;
+				switch (direction) {
+					case NORTH:
+						gridZ += 1;
+						break;
+
+					case SOUTH:
+						gridZ -= 1;
+						break;
+
+					case WEST:
+						gridX -= 1;
+						break;
+
+					case EAST:
+						gridX += 1;
+						break;
+				}
+				changeDirection();
+			}
+			calculateXZ();
+		}
 
 	}
 
@@ -1139,14 +1235,9 @@ public class CubeQuest {
 	 */
 	static void sparkInit() {
 
-		// for each enemy
 		for (int i = 0; i < SPARK_COUNT; i++) {
-
-			// place it in a random world location
 			sparks[i] = new Spark();
-			sparkSpawn(sparks[i]);
-
-		}
+			}
 
 	}
 
@@ -1159,48 +1250,8 @@ public class CubeQuest {
 	 * @param dt a float
 	 */
 	static void sparkUpdate(float dt) {
-		int turn = 0;
-		int steps = 0;
-
-		// for each spark...
-		for (int i = 0; i < SPARK_COUNT; i++) {
-
-			Spark s = sparks[i];
-
-			// update t
-			s.t += dt;
-
-			if (turn == 0) {
-				s.dx  = 0;
-				s.dz -= 1;
-			} else if (turn == 1) {
-				s.dx  = 0;
-				s.dz += 1;
-			} else if (turn == 2) {
-				s.dx += 1;
-				s.dz  = 0;
-			} else if (turn ==3) {
-				s.dx -= 1;
-				s.dz  = 0;
-			}
-
-
-			// update location
-			s.x += s.dx * SPARK_SPEED * s.t;
-			s.z += s.dz * SPARK_SPEED * s.t;
-			steps += 1;
-
-
-			if ( steps % 3 == 0 ) {
-				turn = ((int) random(0, 3));
-			}
-
-
-			if (steps >= SPARK_LIFE_TIME) {
-				sparkSpawn(s);
-				steps = 0;
-			}
-
+		for(Spark s : sparks){
+		    s.update(dt);
 		}
 
 	}
@@ -1241,22 +1292,6 @@ public class CubeQuest {
 
 	}
 
-
-
-	/**
-	 * Spawn spark s to new location.
-	 * along the grid
-	 * @param s A spark.
-	 */
-	static void sparkSpawn(Spark s) {
-
-		s.x =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
-		s.x += 0.5f;
-		s.z =  ((int) random(-WORLD_RADIUS, +WORLD_RADIUS));
-		s.z += 0.5f;
-		s.t = 0.0f;
-
-	}
 	//==========================================================================
 	// TERRAIN
 	//==========================================================================
@@ -2582,6 +2617,7 @@ public class CubeQuest {
 			worldPlotFloor(elevation);
 			playerPlotShots();
 			enemiesPlot();
+            sparkPlot();
 
 			//Design a movement of items according to a sin wave
 			float height = (float) Math.sin(((System.currentTimeMillis()) % (1000 * 4)) * (2 * PI) / 1000 / 4);
