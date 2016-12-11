@@ -1097,7 +1097,7 @@ public class CubeQuest {
 	/**
 	 * Enemy speed in distance per second.
 	 */
-	static final float SPARK_SPEED = 0.001f;
+	static final float SPARK_SPEED = 1.0f;
 
 	/**
 	 * Time it takes for enemy to spawn in seconds.
