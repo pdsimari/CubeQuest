@@ -1281,7 +1281,7 @@ public class CubeQuest {
 				{
 					glScalef(SPARK_SIZE, SPARK_SIZE, SPARK_SIZE);
 					glTranslatef(0.0f, 1.0f, 0.0f);
-					plotSolidCube();
+					plotUnitSphere(10);
 				}
 				glPopMatrix();
 
