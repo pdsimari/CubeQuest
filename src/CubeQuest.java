@@ -104,7 +104,8 @@ public class CubeQuest {
 				hitBuffer,
 				enemy_deadBuffer;
 
-
+	float u=item.treasure.x;
+	float v=item.treasure.z;
 
 //----------------------------------------------------------------------------------------------------------------------
 	/**
@@ -439,7 +440,6 @@ public class CubeQuest {
 
 					x -= dx * 15.0f;
 					z -= dz * 15.0f;
-
 				}
 			}
 
@@ -1665,54 +1665,55 @@ public class CubeQuest {
 
 
 		private static class Treasure {
-			// number of potions allowed on the map.
+			// number of treasure allowed on the map.
 			static final int TREASURE_COUNT = 1;
 
-			// position in the zx plane
+			// Treasure in the zx plane
 			static float x;
 			static float z;
+			static float y;
+			static float check;
 
 			// age (in seconds)
 			static float time;
 
-			//Respawn a potion
+			//Initialize x,z for a treasure
 			static void treasureInit() {
 				for (int i = 0; i <= TREASURE_COUNT; i++){
-					TreasureRespawn();
+					x = random(-WORLD_RADIUS, WORLD_RADIUS);
+					z = random(-WORLD_RADIUS, WORLD_RADIUS);
 				}
 			}
 
 			static int collisionPlayerandPickup() {
-				//Calculate the distance between the Player and the Potion
+				//Calculate the distance between the Player and the Treasure
 				float dist = (float) sqrt((x - player.x)*(x - player. x)+(z - player.z)*(z - player.z));
 
 				System.out.println(x+ " " + player.x);
 				System.out.println(z+ " " +player.z);
 				System.out.println(dist);
-				//If the distance < 1.0f then the player health regen to 100. Then the potion disappears and respawns on another place
-				if(dist < 50.0f){
-					player.health = 100;
+				//If the distance < 1.0f then the Sword will be hold on the player hand
+				if(dist < 60.0f) {
+					check = 1;
 					return 1;
 				}
 				return 0;
 			}
 
-			//Random a place for Potion to respawn
+			//Make all parts covering a Sword disappear
 			static void TreasureRespawn() {
-				x = random(-WORLD_RADIUS, WORLD_RADIUS);
-				z = random(-WORLD_RADIUS, WORLD_RADIUS);
+				y = 100.0f;
 				time = -ITEM_SPAWN_TIME;
 			}
 
 
 			//Plot the Treasure Chest
 			private static void plotTreasureChest() {
-				//Set the x,y,z,h position for the Treasure
 
 				glPushMatrix();
 				{
-					//Set the white color
-					glColor3f(1.0f, 1.0f, 1.0f);
+					//Set the yello color
+					glColor3f(32.0f, 1.0f, 0.0f);
 					glTranslatef(x, 0.5f, z);
 
 					//Plot base
@@ -1725,42 +1726,69 @@ public class CubeQuest {
 					}
 					glPopMatrix();
 
-					//Draw the front
-					plotCylinder(2.5f, 3.0f, 2.5f, 2.5f, 0.3f);
-					plotCylinder(2.5f / 2, 3.0f, 2.5f, 2.5f, 0.3f);
-					plotCylinder(0, 3.0f, 2.5f, 2.5f, 0.3f);
-					plotCylinder(-2.5f / 2, 3.0f, 2.5f, 2.5f, 0.3f);
-					plotCylinder(-2.5f, 3.0f, 2.5f, 2.5f, 0.3f);
+					//Then the player comes close to the treasure and press key G, all parts covering the Sword disappear
+					if (Keyboard.isKeyDown(Keyboard.KEY_G)) {
+						plotCylinder(2.5f, 3.0f - y, 2.5f, 2.5f, 0.3f);
+						plotCylinder(2.5f / 2, 3.0f - y, 2.5f, 2.5f, 0.3f);
+						plotCylinder(0, 3.0f - y, 2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f / 2, 3.0f - y, 2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f - y, 2.5f, 2.5f, 0.3f);
 
-					//Draw the middle
-					plotCylinder(2.5f, 3.0f, 0.0f, 2.5f, 0.3f);
+						plotCylinder(2.5f, 3.0f - y, 0.0f, 2.5f, 0.3f);
+						plotCylinder(2.5f, 3.0f - y, 2.5f / 2, 2.5f, 0.3f);
+						plotCylinder(2.5f, 3.0f - y, -2.5f / 2, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f - y, 0.0f, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f - y, 2.5f / 2, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f - y, -2.5f / 2, 2.5f, 0.3f);
 
-					plotCylinder(2.5f, 3.0f, 2.5f / 2, 2.5f, 0.3f);
+						plotCylinder(2.5f, 3.0f - y, -2.5f, 2.5f, 0.3f);
+						plotCylinder(2.5f / 2, 3.0f - y, -2.5f, 2.5f, 0.3f);
+						plotCylinder(0, 3.0f - y, -2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f / 2, 3.0f - y, -2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f - y, -2.5f, 2.5f, 0.3f);
 
-					plotCylinder(2.5f, 3.0f, -2.5f / 2, 2.5f, 0.3f);
-
-					plotCylinder(-2.5f, 3.0f, 0.0f, 2.5f, 0.3f);
-
-					plotCylinder(-2.5f, 3.0f, 2.5f / 2, 2.5f, 0.3f);
-
-					plotCylinder(-2.5f, 3.0f, -2.5f / 2, 2.5f, 0.3f);
-
-					//Draw the back
-					plotCylinder(2.5f, 3.0f, -2.5f, 2.5f, 0.3f);
-					plotCylinder(2.5f / 2, 3.0f, -2.5f, 2.5f, 0.3f);
-					plotCylinder(0, 3.0f, -2.5f, 2.5f, 0.3f);
-					plotCylinder(-2.5f / 2, 3.0f, -2.5f, 2.5f, 0.3f);
-					plotCylinder(-2.5f, 3.0f, -2.5f, 2.5f, 0.3f);
-
-					//Draw the roof
-					glPushMatrix();
-					{
-						glTranslatef(0.0f, 3.0f + 2.5f, 0.0f);
-						glScalef(0.5f, 0.5f, 0.5f);
-						glScalef(6.0f, 0.5f, 6.0f);
-						plotUnitCube();
+						glPushMatrix();
+						{
+							glTranslatef(0.0f, 3.0f + 2.5f - y, 0.0f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glScalef(6.0f, 0.5f, 6.0f);
+							plotUnitCube();
+						}
+						glPopMatrix();
 					}
-					glPopMatrix();
+					else {
+						//Draw the front
+						plotCylinder(2.5f, 3.0f, 2.5f, 2.5f, 0.3f);
+						plotCylinder(2.5f / 2, 3.0f, 2.5f, 2.5f, 0.3f);
+						plotCylinder(0, 3.0f, 2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f / 2, 3.0f, 2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f, 2.5f, 2.5f, 0.3f);
+
+						//Draw the middle
+						plotCylinder(2.5f, 3.0f, 0.0f, 2.5f, 0.3f);
+						plotCylinder(2.5f, 3.0f, 2.5f / 2, 2.5f, 0.3f);
+						plotCylinder(2.5f, 3.0f, -2.5f / 2, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f, 0.0f, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f, 2.5f / 2, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f, -2.5f / 2, 2.5f, 0.3f);
+
+						//Draw the back
+						plotCylinder(2.5f, 3.0f, -2.5f, 2.5f, 0.3f);
+						plotCylinder(2.5f / 2, 3.0f, -2.5f, 2.5f, 0.3f);
+						plotCylinder(0, 3.0f, -2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f / 2, 3.0f, -2.5f, 2.5f, 0.3f);
+						plotCylinder(-2.5f, 3.0f, -2.5f, 2.5f, 0.3f);
+
+						//Draw the roof
+						glPushMatrix();
+						{
+							glTranslatef(0.0f, 3.0f + 2.5f, 0.0f);
+							glScalef(0.5f, 0.5f, 0.5f);
+							glScalef(6.0f, 0.5f, 6.0f);
+							plotUnitCube();
+						}
+						glPopMatrix();
+					}
 				}
 				glPopMatrix();
 			}
@@ -1770,9 +1798,16 @@ public class CubeQuest {
 
 				glPushMatrix();
 				{
-					//Set the black color
+					//Set the Red color
 					glColor3f(1.0f, 0.0f, 0.0f);
 
+					//If player come close to the Treasure and press key G, the Sword moves along with the player
+					if ((check == 1) && (Keyboard.isKeyDown(Keyboard.KEY_G))) {
+						glTranslatef(player.dx, 0.2f, player.dz);
+						check = 2;
+					}
+					else if (check == 2) glTranslatef(player.dx, 0.2f, player.dz);
+					else
 					glTranslatef(x, 0.2f, z);
 
 					//Plot the body of the Sword along the y axis
@@ -2582,16 +2617,17 @@ public class CubeQuest {
 
 				//Plot a Treasure Chest on a surface
 				item.treasure.plotTreasureChest();
-				//Plot a Sword inside the Treasure Chest and make it move following the sin wave according to the y axis
 
+				//Plot a Sword inside the Treasure Chest and make it move following the sin wave according to the y axis
 				glScalef(1.0f, 0.8f, 1.0f);
 				glTranslatef(0.0f, 3.1f + height, 0.0f);
 				item.treasure.plotSword();
 				glPopMatrix();
 			}
 
+			//If the player comes close to the Treasure, check if key G is pressed.
 			if (item.treasure.collisionPlayerandPickup()==1){
-				item.treasure.treasureInit();
+				item.treasure.TreasureRespawn();
 			}
 
 			glPushMatrix();//elevator
