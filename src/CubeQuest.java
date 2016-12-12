@@ -699,7 +699,7 @@ public class CubeQuest {
     // -----------------------------------------------------------------------------------------------------------------
 
     private static void plotEnemy(int gltype) {
-        glColor3f( 0.5f, 0.5f,0.5f);
+        glColor3f(0.5f,0.5f,0.5f);
         plotFeet( 0.75f, 0.0f, 0.35f, 0.35f, 0.5f, gltype);
         plotBody(  0.0f, 3.0f,  0.0f,  1.5f, 1.0f, gltype);
         plotArms( -3.182f,0.565f, 0.0f, 0.25f, 0.5f, gltype);
@@ -792,7 +792,7 @@ public class CubeQuest {
             plotEggShape(cx, cy, cz, r, h, 315.0f, gltype);
         }
         glPopMatrix();
-        float deg2 = (float)Math.cos((System.currentTimeMillis()%1000000)*-PI/3200)*(float)Math.sin(((System.currentTimeMillis()%1000000)) *PI/3200)*45.0f;
+        float deg2 = (float)Math.cos((System.currentTimeMillis()%1000000)*-PI/1600)*(float)Math.sin(((System.currentTimeMillis()%1000000)) *PI/1600)*45.0f;
         glPushMatrix();
         {
             glRotatef(deg2, 1.5f, 3.0f, 0.0f);
