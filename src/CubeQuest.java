@@ -849,41 +849,42 @@ public class CubeQuest {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	private static void plotEnemy(int gltype) {
-		plotFeet(0.75f, 0.0f, 0.35f, 0.35f, 0.5f, gltype);
-		//plot body
-		plotBody(  0.0f, 3.0f, 0.0f, 1.5f,   1.0f, gltype);
-		//Plot arms
-		plotArms( -3.182f,0.565f, 0.0f, 0.25f,  0.5f, gltype);
-		//Plot eyes
-		plotEyes(  0.75f,3.5f, 1.125f, 0.15f);
+		glColor3f(0.5f,0.5f,0.5f);
+		plotFeet( 0.75f, 0.0f, 0.35f, 0.35f, 0.5f, gltype);
+		plotBody(  0.0f, 3.0f,  0.0f,  1.5f, 1.0f, gltype);
+		plotArms( -3.182f,0.565f, 0.0f, 0.25f, 0.5f, gltype);
+		plotEyes(   0.75f,  3.5f, 1.125f, 0.15f);
 	}
 
 	private static void plotFeet(float cx, float cy, float cz, float r, float h, int gltype){
+		// dest[2] =    (float) sin(theta)*r_xz;
+		float dz = (float)Math.sin(((System.currentTimeMillis())%1000000) * PI/200)*0.25f;
 		glPushMatrix();
 		{
-			glTranslatef(cx,cy,cz);
+			glTranslatef(cx,cy,cz + dz);
 			glScalef(r,0.0f,2*r);
 			plotUHemisphere(20,gltype);
 		}
 		glPopMatrix();
 		glPushMatrix();
 		{
-			glTranslatef(cx,cy,cz);
-			glScalef(r,h,2*r);
-			plotUHemisphere(20, gltype);
-		}
-		glPopMatrix();
-		glPushMatrix();
-		{
-			glTranslatef(-cx,cy,cz);
+			glTranslatef(-cx,cy, -cz - dz);
 			glScalef(r,0.0f,2*r);
 			plotUHemisphere(20, gltype);
 		}
 		glPopMatrix();
+
 		glPushMatrix();
 		{
-			glTranslatef(-cx,cy,cz);
-			glScalef(r,h,2*r);
+			glTranslatef(cx, cy, cz + dz);
+			glScalef(r, h, 2.0f * r);
+			plotUHemisphere(20, gltype);
+		}
+		glPopMatrix();
+		glPushMatrix();
+		{
+			glTranslatef(-cx, cy, -cz - dz);
+			glScalef(r, h, 2.0f* r);
 			plotUHemisphere(20, gltype);
 		}
 		glPopMatrix();
@@ -934,8 +935,20 @@ public class CubeQuest {
 	}
 
 	private static void plotArms(float cx, float cy, float cz, float r, float h, int gltype){
-		plotEggShape( cx, cy, cz, r, h, 315.0f, gltype);
-		plotEggShape(-cx, cy, cz, r, h, -315.0f, gltype);
+		float deg1 = (float)Math.cos((System.currentTimeMillis()%1000000)*PI/1600)*(float)Math.sin(((System.currentTimeMillis()%1000000)) * PI/1600)*45.0f;
+		glPushMatrix();
+		{
+			glRotatef(deg1, -1.5f, 3.0f, 0.0f);
+			plotEggShape(cx, cy, cz, r, h, 315.0f, gltype);
+		}
+		glPopMatrix();
+		float deg2 = (float)Math.cos((System.currentTimeMillis()%1000000)*-PI/1600)*(float)Math.sin(((System.currentTimeMillis()%1000000)) *PI/1600)*45.0f;
+		glPushMatrix();
+		{
+			glRotatef(deg2, 1.5f, 3.0f, 0.0f);
+			plotEggShape(-cx, cy, cz, r, h, -315.0f, gltype);
+		}
+		glPopMatrix();
 	}
 
 	private static void plotUHemisphere(int n,int choice) {
@@ -1003,8 +1016,9 @@ public class CubeQuest {
 		glEnd();
 
 	}
-	// -----------------------------------------------------------------------------------------------------------------
-	// -----------------------------------------------------------------------------------------------------------------
+	
+
+// -----------------------------------------------------------------------------------------------------------------
 
 
 	/**
