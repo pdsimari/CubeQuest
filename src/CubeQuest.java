@@ -486,8 +486,12 @@ public class CubeQuest {
 
 			for(int j = 0; j < TERRAIN_COUNT; j++) {
 				if (col.checkCollisionPlayerTerrain(player, columns) && (col.checkCollisionPlayerTerrainHeight(player, columns) == false)) {
-					x -= 1.0f;
-					z -= 1.0f;
+					dx = -1 * .01f;
+					dz = -1 * .01f;
+
+					x +ss= dx * 15.0f;
+					z += dz * 15.0f;
+
 					gravity = 0.0f;
 					airTime = 0.0f;
 					//System.out.println("COLLISION");
@@ -1367,7 +1371,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of Terrain instances.
 	 */
-	static final int   TERRAIN_COUNT = 1000;
+	static final int   TERRAIN_COUNT = 1;
 
 
 	/**
