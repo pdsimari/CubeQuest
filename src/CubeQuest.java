@@ -489,7 +489,7 @@ public class CubeQuest {
 					dx = -1 * .01f;
 					dz = -1 * .01f;
 
-					x +ss= dx * 15.0f;
+					x += dx * 15.0f;
 					z += dz * 15.0f;
 
 					gravity = 0.0f;
