@@ -1107,12 +1107,13 @@ public class CubeQuest {
 	/**
 	 * Spark life time
 	 */
-	static final float SPARK_LIFE_TIME = 25.0f;
+	static final float SPARK_LIFE_TIME = 70.0f;
 
 	static class Spark {
 
 		float speed = SPARK_SPEED;
-		float lifetime = SPARK_LIFE_TIME;
+		float lifetime = random (3.0f, SPARK_LIFE_TIME);
+		float age = 0;
 		float gridOffset = 0.5f;
 		float gridSeparation = 1.0f;
 
@@ -1130,10 +1131,11 @@ public class CubeQuest {
 		float t;
 
 		private enum Direction {
-			NORTH, // Z+
-			SOUTH, // Z-
-			EAST, // X-
-			WEST} // X+
+			NORTH, 	// Z+
+			SOUTH,	// Z-
+			EAST,	// X-
+			WEST 	// X+
+		}
 
 		// initialize self
 		public Spark() {
@@ -1197,6 +1199,7 @@ public class CubeQuest {
 
 		public void update(float dt) {
 			distance += dt * speed;
+			age += dt;
 			if (distance > gridSeparation) {
 				distance %= gridSeparation;
 				switch (direction) {
@@ -1231,7 +1234,7 @@ public class CubeQuest {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Initialize enemy locations.
+	 * Initialize spark locations.
 	 */
 	static void sparkInit() {
 
@@ -1251,7 +1254,15 @@ public class CubeQuest {
 	 */
 	static void sparkUpdate(float dt) {
 		for(Spark s : sparks){
-		    s.update(dt);
+			if (s.age <= s.lifetime ) {
+				if (Math.abs(s.x) <= WORLD_RADIUS ) {
+					if (Math.abs(s.z) <= WORLD_RADIUS) {
+						s.update(dt);
+					}
+				}
+			} else {
+				sparkInit();
+			}
 		}
 
 	}
@@ -1273,7 +1284,7 @@ public class CubeQuest {
 			{
 
 				// color is yellow
-				glColor3f(1.0f, 1.0f, 0.0f);
+				glColor4f(1.0f, 1.0f, 0.0f, 0.75f);
 
 				// plot cube at spark location
 				glTranslatef(s.x, -0.10f, s.z);
@@ -1292,6 +1303,7 @@ public class CubeQuest {
 
 	}
 
+
 	//==========================================================================
 	// TERRAIN
 	//==========================================================================
@@ -1300,7 +1312,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of Terrain instances.
 	 */
-	static final int   TERRAIN_COUNT = 1;
+	static final int   TERRAIN_COUNT = 100;
 
 
 	/**
@@ -1318,7 +1330,7 @@ public class CubeQuest {
 
 	}
 
-	static void terrainArray() {
+	static void terrainArray(int terrainCount) {
 		float[][] arrayMap;
 		int x = (int) WORLD_RADIUS;
 		arrayMap = new float[x][x];
@@ -2334,6 +2346,7 @@ public class CubeQuest {
 		TerrainInit();
 		sparkInit();
 
+
 		soundInit();
 
 	}
@@ -2618,6 +2631,7 @@ public class CubeQuest {
 			playerPlotShots();
 			enemiesPlot();
             sparkPlot();
+            terrainPlot();
 
 			//Design a movement of items according to a sin wave
 			float height = (float) Math.sin(((System.currentTimeMillis()) % (1000 * 4)) * (2 * PI) / 1000 / 4);
@@ -3050,6 +3064,8 @@ public class CubeQuest {
 
 		try {
 			gameInit();
+
+
 			gameRun();
 		} catch (Exception e) {
 			System.out.println("Fatal error: " + e.getMessage());
