@@ -8,6 +8,7 @@ import static org.lwjgl.openal.AL10.*;
 import org.lwjgl.util.WaveData;
 import org.lwjgl.opengl.Display;
 
+import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,6 +45,15 @@ public class CubeQuest {
 	 * Locked out constructor; this class is static.
 	 */
 	private CubeQuest() { }
+
+	private enum STATE{
+		MENU,
+		GAME
+	};
+
+
+
+	private static STATE State = STATE.MENU;
 
 	// =========================================================================
 	// PLAYER
@@ -356,6 +366,21 @@ public class CubeQuest {
 //----------------------------------------------------------------------------------------------------------------------
 
 
+	static class Menu {
+
+		Graphics g;
+
+		public static void render (Graphics g)
+		{
+			Font fnt0 = new Font("times new roman", Font.BOLD, 50);
+			g.setFont(fnt0);
+			g.setColor(Color.WHITE);
+			g.drawString("Killer Space", Display.getWidth()/2, 100);
+		}
+	}
+
+	static Menu menu = new Menu();
+
 	/**
 	 * Player structure.
 	 */
@@ -366,9 +391,18 @@ public class CubeQuest {
 		float Stamina= 100;
 		float maxStamina=100;
 
+		boolean isAlive = true;
 
-		boolean isAlive() {
-			return health > 0;
+		boolean playerDead() {
+			if (player.health < 0)
+			{
+				isAlive = false;
+			}
+			return isAlive;
+		}
+		void playerRespawn(float dt){
+					playerInit();
+					isAlive = true;
 		}
 
 		// position in the zx plane
@@ -527,6 +561,7 @@ public class CubeQuest {
 			for (int i = 0; i < ENEMY_COUNT; i++) {
 				if ((abs(p.x - e.x) < 2) && abs(p.z - e.z) < 2) {
 					collision = true;
+					p.health -= .1f;
 				}
 				else{
 					collision = false;
@@ -2270,72 +2305,71 @@ public class CubeQuest {
 		// Enable support for High DPI displays.
 		System.setProperty("org.lwjgl.opengl.Display.enableHighDPI", "true");
 
-		// initialize the display
-		Display.setTitle(APP_TITLE);
-		Display.setFullscreen(false);
-		Display.setVSyncEnabled(true);
-		Display.setResizable(true);
-		Display.create();
+			// initialize the display
+			Display.setTitle(APP_TITLE);
+			Display.setFullscreen(false);
+			Display.setVSyncEnabled(true);
+			Display.setResizable(true);
+			Display.create();
 
-		updateOpenGLProjectionMatrix();
+			updateOpenGLProjectionMatrix();
 
-		//Mouse, sets it to be hidden
-		Mouse.create();
-		Mouse.setGrabbed(true);
+			//Mouse, sets it to be hidden
+			Mouse.create();
+			Mouse.setGrabbed(true);
 
-		// background color
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			// background color
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-		// lighting
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glLight(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-		glLight(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-		glLight(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-		glLight(GL_LIGHT0, GL_POSITION, lightPosition);
-		glEnable(GL_NORMALIZE);
-		glEnable(GL_AUTO_NORMAL);
+			// lighting
+			glEnable(GL_LIGHTING);
+			glEnable(GL_LIGHT0);
+			glLight(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+			glLight(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+			glLight(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+			glLight(GL_LIGHT0, GL_POSITION, lightPosition);
+			glEnable(GL_NORMALIZE);
+			glEnable(GL_AUTO_NORMAL);
 
-		// material
-		glMaterial(GL_FRONT, GL_AMBIENT, materialAmbient);
-		glMaterial(GL_FRONT, GL_DIFFUSE, materialDiffuse);
-		glMaterial(GL_FRONT, GL_SPECULAR, materialSpecular);
-		glMaterialf(GL_FRONT, GL_SHININESS, materialShininess);
+			// material
+			glMaterial(GL_FRONT, GL_AMBIENT, materialAmbient);
+			glMaterial(GL_FRONT, GL_DIFFUSE, materialDiffuse);
+			glMaterial(GL_FRONT, GL_SPECULAR, materialSpecular);
+			glMaterialf(GL_FRONT, GL_SHININESS, materialShininess);
 
-		// allow changing colors while keeping the above material
-		glEnable(GL_COLOR_MATERIAL);
+			// allow changing colors while keeping the above material
+			glEnable(GL_COLOR_MATERIAL);
 
-		// depth testing
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
+			// depth testing
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);
 
-		// transparency
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			// transparency
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		// antialiasing
-		glEnable(GL_POINT_SMOOTH);
-		glEnable(GL_LINE_SMOOTH);
-		//glEnable(GL_POLYGON_SMOOTH);
+			// antialiasing
+			glEnable(GL_POINT_SMOOTH);
+			glEnable(GL_LINE_SMOOTH);
+			//glEnable(GL_POLYGON_SMOOTH);
 
-		// fog
-		glEnable(GL_FOG);
-		glFog(GL_FOG_COLOR, floatBuffer(0.0f, 0.0f, 0.0f, 1.0f));
-		glFogi(GL_FOG_MODE, GL_EXP2);
-		glFogf(GL_FOG_DENSITY, 0.05f);
+			// fog
+			glEnable(GL_FOG);
+			glFog(GL_FOG_COLOR, floatBuffer(0.0f, 0.0f, 0.0f, 1.0f));
+			glFogi(GL_FOG_MODE, GL_EXP2);
+			glFogf(GL_FOG_DENSITY, 0.05f);
 
-		// TODO: initialize game elements
+			// TODO: initialize game elements
 
-		playerInit();
-		enemiesInit();
-		item.potion.potionsInit();
-		item.potion2.speedPotionsInit();
-		item.treasure.treasureInit();
-		TerrainInit();
-		sparkInit();
+			playerInit();
+			enemiesInit();
+			item.potion.potionsInit();
+			item.potion2.speedPotionsInit();
+			item.treasure.treasureInit();
+			TerrainInit();
+			sparkInit();
 
-		soundInit();
-
+			soundInit();
 	}
 
 	private static void soundInit() throws LWJGLException, FileNotFoundException {
@@ -2526,10 +2560,16 @@ public class CubeQuest {
 
 		// TODO: add updates to all game elements.
 
-		player.update(dt);
-		enemiesUpdate(dt);
-		sparkUpdate(dt);
-
+		if (!player.playerDead()) {
+			player.playerRespawn(dt);
+			player.isAlive = true;
+			finished = true;
+		}
+		else {
+			player.update(dt);
+			enemiesUpdate(dt);
+			sparkUpdate(dt);
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -2785,7 +2825,7 @@ public class CubeQuest {
 		glEnd();
 		glPopMatrix();
 	}
-	private static void renderStamina(float width, float height) { //the stamina bar needs additional coding to decrease as the player sprints
+	private static void renderStamina(float width, float height) {
 
 		float margin = 150.0f;
 		float maxBarHeight = 200;
@@ -3048,14 +3088,14 @@ public class CubeQuest {
 
 	public static void main(String[] args) {
 
-		try {
-			gameInit();
-			gameRun();
-		} catch (Exception e) {
-			System.out.println("Fatal error: " + e.getMessage());
-		} finally {
-			gameCleanup();
-		}
+			try {
+				gameInit();
+				gameRun();
+			} catch (Exception e) {
+				System.out.println("Fatal error: " + e.getMessage());
+			} finally {
+				gameCleanup();
+			}
 
 	}
 
