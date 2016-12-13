@@ -477,21 +477,26 @@ public class CubeQuest {
 				}
 			}
 
-			for(int j = 0; j < TERRAIN_COUNT; j++){
+			// respawn potion to a different location if collision between terrain occurs
+			for (int t = 0; t < TERRAIN_COUNT; t++) {
+				if (col.checkCollisionPotionTerrain(item.potion, columns) == true) {
+					item.potion.potionsInit();
+				}
+			}
+
+			for(int j = 0; j < TERRAIN_COUNT; j++) {
 				if (col.checkCollisionPlayerTerrain(player, columns) && (col.checkCollisionPlayerTerrainHeight(player, columns) == false)) {
 					x -= 1.0f;
 					z -= 1.0f;
 					gravity = 0.0f;
 					airTime = 0.0f;
 					//System.out.println("COLLISION");
-				}
-				else{
+				} else {
 					gravity = -20.0f;
 					//System.out.println("NO COLLISION");
 				}
 
-				if (col.checkCollisionPlayerTerrainHeight(player, columns))
-				{
+				if (col.checkCollisionPlayerTerrainHeight(player, columns)) {
 
 					y = columns[j].Height * 2;
 					x -= dz * PLAYER_SPEED * dt * cos(rotation * Math.PI / 180);
@@ -499,9 +504,7 @@ public class CubeQuest {
 
 					x -= -dx * PLAYER_SPEED * dt * cos((rotation + 90) * Math.PI / 180);
 					z -= -dx * PLAYER_SPEED * dt * sin((rotation + 90) * Math.PI / 180);
-				}
-
-				else {
+				} else {
 					gravity = -20.f;
 					airTime += dt;
 
@@ -511,7 +514,6 @@ public class CubeQuest {
 
 				}
 			}
-
 
 			// update player shots (if active)
 			for (PlayerShot shot : shots) {
@@ -589,6 +591,22 @@ public class CubeQuest {
 				if ((p.y > t[i].Height * 2) && checkCollisionPlayerTerrain(p, t)) {
 					collision = true;
 				} else {
+					collision = false;
+				}
+			}
+			return collision;
+		}
+
+		public boolean checkCollisionPotionTerrain(Item.Potion p, Terrain[] t){
+			boolean collision = false;
+			for (int i = 0; i < TERRAIN_COUNT; i++) {
+				float dist = (float) sqrt((p.x - t[i].x)*(p.x - t[i].x)+(p.z - t[i].z)*(p.z - t[i].z));
+
+				if (dist < 5.0f) {
+					item.potion.potionsInit();
+					collision = true;
+				}
+				else{
 					collision = false;
 				}
 			}
@@ -866,41 +884,42 @@ public class CubeQuest {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	private static void plotEnemy(int gltype) {
-		plotFeet(0.75f, 0.0f, 0.35f, 0.35f, 0.5f, gltype);
-		//plot body
-		plotBody(  0.0f, 3.0f, 0.0f, 1.5f,   1.0f, gltype);
-		//Plot arms
-		plotArms( -3.182f,0.565f, 0.0f, 0.25f,  0.5f, gltype);
-		//Plot eyes
-		plotEyes(  0.75f,3.5f, 1.125f, 0.15f);
+		glColor3f(0.5f,0.5f,0.5f);
+		plotFeet( 0.75f, 0.0f, 0.35f, 0.35f, 0.5f, gltype);
+		plotBody(  0.0f, 3.0f,  0.0f,  1.5f, 1.0f, gltype);
+		plotArms( -3.182f,0.565f, 0.0f, 0.25f, 0.5f, gltype);
+		plotEyes(   0.75f,  3.5f, 1.125f, 0.15f);
 	}
 
 	private static void plotFeet(float cx, float cy, float cz, float r, float h, int gltype){
+		// dest[2] =    (float) sin(theta)*r_xz;
+		float dz = (float)Math.sin(((System.currentTimeMillis())%1000000) * PI/200)*0.25f;
 		glPushMatrix();
 		{
-			glTranslatef(cx,cy,cz);
+			glTranslatef(cx,cy,cz + dz);
 			glScalef(r,0.0f,2*r);
 			plotUHemisphere(20,gltype);
 		}
 		glPopMatrix();
 		glPushMatrix();
 		{
-			glTranslatef(cx,cy,cz);
-			glScalef(r,h,2*r);
-			plotUHemisphere(20, gltype);
-		}
-		glPopMatrix();
-		glPushMatrix();
-		{
-			glTranslatef(-cx,cy,cz);
+			glTranslatef(-cx,cy, -cz - dz);
 			glScalef(r,0.0f,2*r);
 			plotUHemisphere(20, gltype);
 		}
 		glPopMatrix();
+
 		glPushMatrix();
 		{
-			glTranslatef(-cx,cy,cz);
-			glScalef(r,h,2*r);
+			glTranslatef(cx, cy, cz + dz);
+			glScalef(r, h, 2.0f * r);
+			plotUHemisphere(20, gltype);
+		}
+		glPopMatrix();
+		glPushMatrix();
+		{
+			glTranslatef(-cx, cy, -cz - dz);
+			glScalef(r, h, 2.0f* r);
 			plotUHemisphere(20, gltype);
 		}
 		glPopMatrix();
@@ -951,8 +970,20 @@ public class CubeQuest {
 	}
 
 	private static void plotArms(float cx, float cy, float cz, float r, float h, int gltype){
-		plotEggShape( cx, cy, cz, r, h, 315.0f, gltype);
-		plotEggShape(-cx, cy, cz, r, h, -315.0f, gltype);
+		float deg1 = (float)Math.cos((System.currentTimeMillis()%1000000)*PI/1600)*(float)Math.sin(((System.currentTimeMillis()%1000000)) * PI/1600)*45.0f;
+		glPushMatrix();
+		{
+			glRotatef(deg1, -1.5f, 3.0f, 0.0f);
+			plotEggShape(cx, cy, cz, r, h, 315.0f, gltype);
+		}
+		glPopMatrix();
+		float deg2 = (float)Math.cos((System.currentTimeMillis()%1000000)*-PI/1600)*(float)Math.sin(((System.currentTimeMillis()%1000000)) *PI/1600)*45.0f;
+		glPushMatrix();
+		{
+			glRotatef(deg2, 1.5f, 3.0f, 0.0f);
+			plotEggShape(-cx, cy, cz, r, h, -315.0f, gltype);
+		}
+		glPopMatrix();
 	}
 
 	private static void plotUHemisphere(int n,int choice) {
@@ -1020,8 +1051,9 @@ public class CubeQuest {
 		glEnd();
 
 	}
-	// -----------------------------------------------------------------------------------------------------------------
-	// -----------------------------------------------------------------------------------------------------------------
+	
+
+// -----------------------------------------------------------------------------------------------------------------
 
 
 	/**
@@ -1335,7 +1367,7 @@ public class CubeQuest {
 	/**
 	 * Maximum number of Terrain instances.
 	 */
-	static final int   TERRAIN_COUNT = 1;
+	static final int   TERRAIN_COUNT = 1000;
 
 
 	/**
@@ -1537,12 +1569,12 @@ public class CubeQuest {
 
 
 	// -----------------------------------------------------------------------------------------------------------------
-	private static class Item {
+	static class Item {
 
 		Potion potion = new Potion();
 		SpeedPotion potion2 = new SpeedPotion();
 		Treasure treasure = new Treasure();
-		private static class Potion{
+		static class Potion{
 
 			// number of potions allowed on the map.
 			static final int POTION_COUNT = 1;
@@ -1563,7 +1595,7 @@ public class CubeQuest {
 
 			static int collisionPlayerandPickup() {
 				//Calculate the distance between the Player and the Potion
-				float dist = (float) sqrt((x - player.x)*(x - player. x)+(z - player.z)*(z - player.z));
+				float dist = (float) sqrt((x - player.x)*(x - player.x)+(z - player.z)*(z - player.z));
 
 				//If the distance < 1.0f then the player health regen to 100. Then the potion disappears and respawns on another place
 				if(dist < 1.0f){
@@ -1638,7 +1670,7 @@ public class CubeQuest {
 			}
 		}
 
-		private static class SpeedPotion {
+		static class SpeedPotion {
 
 			// number of speed potions allowed on the map.
 			static final int POTION_COUNT = 1;
@@ -1734,7 +1766,7 @@ public class CubeQuest {
 		}
 
 
-		private static class Treasure {
+		static class Treasure {
 			// number of treasure allowed on the map.
 			static final int TREASURE_COUNT = 1;
 
@@ -1864,7 +1896,7 @@ public class CubeQuest {
 			}
 
 			// -----------------------------------------------------------------------------------------------------------------
-			private static void plotSword() {
+			static void plotSword() {
 
 				glPushMatrix();
 				{
@@ -1876,8 +1908,7 @@ public class CubeQuest {
 						glTranslatef(player.dx, 0.2f, player.dz);
 						check = 2;
 					}
-					else if (check == 2) glTranslatef(player.dx, 0.2f, player.dz);
-					else
+					else glTranslatef(player.dx, 0.2f, player.dz);
 					glTranslatef(x, 0.2f, z);
 
 					//Plot the body of the Sword along the y axis
@@ -2714,7 +2745,7 @@ public class CubeQuest {
 			}
 			glPopMatrix();
 
-			//terrainPlot();
+			terrainPlot();
 			//sparkPlot();
 		}
 		glPopMatrix();
@@ -2871,7 +2902,7 @@ public class CubeQuest {
 
 		// if shift is not being pressed, stamina starts to regen.
 		if(!(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) && player.Stamina < player.maxStamina){
-			player.Stamina += 0.05f;
+			player.Stamina += 0.10f;
 		}
 	}
 
